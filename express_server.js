@@ -35,6 +35,11 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+// NEW URLS
+app.get("/urls/new", (req, res) => {
+  res.render("urls_new");
+});
+
 // FIND URL
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
@@ -57,11 +62,6 @@ app.post("/urls", (req, res) => {
 
     res.render("urls_show", templateVars);
   });
-});
-
-// NEW URLS
-app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
 });
 
 app.listen(PORT, () => {
