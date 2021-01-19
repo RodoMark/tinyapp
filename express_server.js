@@ -35,24 +35,33 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-app.post("/urls", (req, res) => {
-  console.log(req.body);
-  res.send("Ok");
-});
-
-// NEW URLS
-app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
-});
-
 // FIND URL
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
   };
-  console.log(req.params);
+
   res.render("urls_show", templateVars);
+});
+
+app.post("/urls", (req, res) => {
+  const newKey = generateRandomString();
+  urlDatabase[newKey] = req.body.longURL;
+
+  app.get(`/urls/:${newKey}`, (req, res) => {
+    const templateVars = {
+      shortURL: newKey,
+      longURL: urlData[newKey],
+    };
+
+    res.render("urls_show", templateVars);
+  });
+});
+
+// NEW URLS
+app.get("/urls/new", (req, res) => {
+  res.render("urls_new");
 });
 
 app.listen(PORT, () => {
