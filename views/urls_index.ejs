@@ -21,7 +21,7 @@
         <% for(const key in urls) { %>
         <h5 class="card-title">TinyURL for: <%= urls[key] %></h5>
         <p class="card-text">
-          Short URL: <a href="<%= urls[key] %>"><%= [key] %></a>
+          Short URL: <a href="/u/<%= urls[key] %>"><%= [key] %></a>
         </p>
       </div>
       <div class="card-footer text-muted"></div>

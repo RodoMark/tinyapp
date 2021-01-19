@@ -30,7 +30,7 @@ app.get("/hello", (req, res) => {
 });
 
 // ALL URLS
-app.get("/urls", (req, res) => {
+app.get("/u", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
@@ -41,27 +41,39 @@ app.get("/urls/new", (req, res) => {
 });
 
 // FIND URL
-app.get("/urls/:shortURL", (req, res) => {
+app.get("/u/:shortURL", (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
   };
 
-  res.render("urls_show", templateVars);
+  let short = templateVars.shortURL;
+  let long = templateVars.longURL;
+
+  for (const shortURL of urlDatabase) {
+    if (shortURL === short) {
+      res.render("urls_show", templateVars);
+    } else {
+      res.render("404_page");
+    }
+  }
 });
 
-app.post("/urls", (req, res) => {
+app.post("/u/", (req, res) => {
+  console.log("Ok");
   const newKey = generateRandomString();
   urlDatabase[newKey] = req.body.longURL;
+  console.log(newKey);
+  console.log(urlDatabase[newKey]);
 
-  app.get(`/urls/:${newKey}`, (req, res) => {
-    const templateVars = {
-      shortURL: newKey,
-      longURL: urlData[newKey],
-    };
+  // app.get(`/urls/:newKey`, (req, res) => {
+  const templateVars = {
+    shortURL: newKey,
+    longURL: urlDatabase[newKey],
+  };
 
-    res.render("urls_show", templateVars);
-  });
+  res.render("urls_show", templateVars);
+  // });
 });
 
 app.listen(PORT, () => {
