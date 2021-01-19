@@ -14,18 +14,26 @@
   <header><%- include('partials/_header') %></header>
 
   <body>
-    <div class="card text-center">
-      <div class="card-header"></div>
-
-      <div class="card-body">
-        <% for(const key in urls) { %>
-        <h5 class="card-title">TinyURL for: <%= urls[key] %></h5>
-        <p class="card-text">
-          Short URL: <a href="/u/<%= urls[key] %>"><%= [key] %></a>
-        </p>
-      </div>
-      <div class="card-footer text-muted"></div>
-    </div>
+    <main style="margin: 1em">
+      <h3>My URLs</h3>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Short URL</th>
+            <th scope="col">Long URL</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for(let shortURL in urls) { %>
+          <tr>
+            <td><%= shortURL %></td>
+            <td><a href="<%= urls[shortURL] %>"><%= urls[shortURL] %></td>
+            <td><button>DELETE</button></td>
+          </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </main>
     <!-- Bootstrap JS -->
     <script
       src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
@@ -44,8 +52,3 @@
     ></script>
   </body>
 </html>
-
-<!-- <ul>
-  <li><%= key %>: <%= urls[key] %></li>
-  <% } %>
-</ul> -->
