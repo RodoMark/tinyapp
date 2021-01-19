@@ -1,5 +1,7 @@
 "use strict";
 
+const morgan = require("morgan");
+
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
@@ -21,21 +23,13 @@ const generateRandomString = function () {
 
 // SERVER REQUESTS
 
-app.get("/", (req, res) => {
-  res.send("Hello!");
-});
-
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
-// ALL URLS
+// INDEX of all URLS
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
-// NEW URLS
+// adding NEW URLS
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
@@ -60,11 +54,8 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.post("/urls/", (req, res) => {
-  console.log("Ok");
   const newKey = generateRandomString();
   urlDatabase[newKey] = req.body.longURL;
-  console.log(newKey);
-  console.log(urlDatabase[newKey]);
 
   const templateVars = {
     shortURL: newKey,
@@ -72,6 +63,12 @@ app.post("/urls/", (req, res) => {
   };
 
   // Redirect to show URLS page
+  res.redirect("/urls");
+});
+
+app.post("/urls/:shortURL/delete", (req, res) => {
+  delete urlDatabase[req.params.shortURL];
+
   res.redirect("/urls");
 });
 

@@ -28,7 +28,11 @@
           <tr>
             <td><%= shortURL %></td>
             <td><a href="<%= urls[shortURL] %>"><%= urls[shortURL] %></td>
-            <td><button>DELETE</button></td>
+            <td>
+              <form method="POST" action="<%=`/urls/${shortURL}/delete`%>">
+                <button>DELETE</button>
+              </form>
+            </td>
           </tr>
           <% } %>
         </tbody>
