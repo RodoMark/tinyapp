@@ -1,6 +1,7 @@
 "use strict";
 
 const morgan = require("morgan");
+const cookieParser = require("cookie-parser");
 
 const express = require("express");
 const app = express();
@@ -44,15 +45,16 @@ app.get("/urls/:shortURL", (req, res) => {
   let short = templateVars.shortURL;
   let long = templateVars.longURL;
 
-  for (const shortURL in urlDatabase) {
-    if (shortURL === short) {
-      return res.render("urls_show", templateVars);
-    } else {
-      res.redirect("404_page");
-    }
-  }
+  res.render("urls_show", templateVars);
 });
 
+// SET USERNAME
+app.post("/login", (req, res) => {
+  res.cookie("username", req.body);
+  res.redirect("/urls");
+});
+
+// Make NEW URL
 app.post("/urls/", (req, res) => {
   const newKey = generateRandomString();
   urlDatabase[newKey] = req.body.longURL;
@@ -62,17 +64,17 @@ app.post("/urls/", (req, res) => {
     longURL: urlDatabase[newKey],
   };
 
-  // Redirect to show URLS page
   res.redirect("/urls");
 });
 
-// DELETE URL
+// DELETE existing URL
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
 
   res.redirect("/urls");
 });
 
+// UPDATE existing URL
 app.post("/urls/:shortURL/update", (req, res) => {
   urlDatabase[req.params.shortURL] = req.body.longURL;
 
