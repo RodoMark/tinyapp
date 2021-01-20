@@ -41,6 +41,8 @@ const userDatabase = {
 const urlDatabase = {
   b2xVn2: { longURL: "http://www.lighthouselabs.ca", uniqueID: "u0000" },
   c3xVn3: { longURL: "http://www.google.com", uniqueID: "u0001" },
+  d4xVn4: { longURL: "http://www.facebook.com", uniqueID: "u0000" },
+  e5xVn5: { longURL: "http://www.instagram.com", uniqueID: "u0000" },
 };
 
 // RANDOM NUMBER FUNCTION
@@ -61,10 +63,6 @@ app.get("/urls", (req, res) => {
     user_id: req.cookies["user_id"],
     urls: belongsToUser(urlDatabase, req.cookies["user_id"]["uniqueID"]),
   };
-
-  console.log(templateVars.user_id);
-
-  console.log(templateVars.urls);
 
   res.render("urls_index", templateVars);
 });
@@ -95,8 +93,9 @@ app.post("/login", (req, res) => {
   ) {
     console.log(`${incomingEmail} exists and password is matching.`);
 
-    const fetchedUser = fetchUser(userData, incomingEmail);
+    const fetchedUser = fetchUser(userDatabase, incomingEmail);
 
+    // This is the authentication that's pass to the user
     res.cookie("user_id", {
       name: fetchedUser["name"],
       email: fetchedUser["email"],
@@ -166,6 +165,7 @@ app.post("/register", (req, res) => {
       name: details.incomingName,
       email: details.incomingEmail,
       password: details.incomingPassword,
+      uniqueID: generateUserID(),
     };
     res.redirect("/urls");
   }
