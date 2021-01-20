@@ -16,7 +16,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 const urlDatabase = {
   b2xVn2: "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com",
 };
 
 // RANDOM NUMBER FUNCTION
@@ -29,9 +28,10 @@ const generateRandomString = function () {
 // INDEX of all URLS
 app.get("/urls", (req, res) => {
   const templateVars = {
-    username: req.cookies["username"],
     urls: urlDatabase,
+    username: req.cookies["username"],
   };
+
   res.render("urls_index", templateVars);
 });
 
@@ -64,9 +64,6 @@ app.get("/urls/:shortURL", (req, res) => {
     username: req.cookies["username"],
   };
 
-  let short = templateVars.shortURL;
-  let long = templateVars.longURL;
-
   res.render("urls_show", templateVars);
 });
 
@@ -74,12 +71,6 @@ app.get("/urls/:shortURL", (req, res) => {
 app.post("/urls/", (req, res) => {
   const newKey = generateRandomString();
   urlDatabase[newKey] = req.body.longURL;
-
-  const templateVars = {
-    shortURL: newKey,
-    longURL: urlDatabase[newKey],
-    username: req.cookies["username"],
-  };
 
   res.redirect("/urls");
 });
