@@ -41,6 +41,12 @@ app.post("/login", (req, res) => {
   res.redirect("/urls");
 });
 
+// LOGOUT
+app.post("/logout", (req, res) => {
+  res.clearCookie("username", req.body.username);
+  res.redirect("/urls");
+});
+
 // adding NEW URLS
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
