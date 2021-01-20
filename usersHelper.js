@@ -22,6 +22,20 @@ const fetchUser = function (userDatabase, email) {
   }
 };
 
+const belongsToUser = function (urlDatabase, uniqueID) {
+  const urlSubset = {};
+
+  for (const shortURL in urlDatabase) {
+    if (urlDatabase[shortURL]["uniqueID"] === uniqueID) {
+      urlSubset[shortURL] = {
+        longURL: urlDatabase[shortURL]["longURL"],
+        uniqueID,
+      };
+    }
+  }
+  return urlSubset;
+};
+
 const registrationHelper = function (userDatabase, details) {
   if (emailExists(userDatabase, details.incomingEmail)) {
     return 1;
@@ -44,5 +58,6 @@ module.exports = {
   emailExists,
   passwordMatch,
   fetchUser,
+  belongsToUser,
   registrationHelper,
 };

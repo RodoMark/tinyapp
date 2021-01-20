@@ -18,6 +18,7 @@ const {
   emailExists,
   passwordMatch,
   fetchUser,
+  belongsToUser,
   registrationHelper,
 } = require("./usersHelper");
 
@@ -57,9 +58,13 @@ const generateUserID = function () {
 // INDEX of all URLS
 app.get("/urls", (req, res) => {
   const templateVars = {
-    urls: urlDatabase,
     user_id: req.cookies["user_id"],
+    urls: belongsToUser(urlDatabase, req.cookies["user_id"]["uniqueID"]),
   };
+
+  console.log(templateVars.user_id);
+
+  console.log(templateVars.urls);
 
   res.render("urls_index", templateVars);
 });
@@ -89,10 +94,14 @@ app.post("/login", (req, res) => {
     passwordMatch(userDatabase, incomingEmail, incomingPassword)
   ) {
     console.log(`${incomingEmail} exists and password is matching.`);
+
+    const fetchedUser = fetchUser(userData, incomingEmail);
+
     res.cookie("user_id", {
-      name: fetchUser(userDatabase, incomingEmail)["name"],
-      email: incomingEmail,
-      password: incomingPassword,
+      name: fetchedUser["name"],
+      email: fetchedUser["email"],
+      password: fetchedUser["password"],
+      uniqueID: fetchedUser["uniqueID"],
     });
     res.redirect("/urls");
   } else if (
