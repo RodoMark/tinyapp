@@ -26,22 +26,30 @@ const userDatabase = {
     name: "Example Person",
     email: "mail@mail.com",
     password: "toyperson",
+    uniqueID: "u0000",
   },
 
   "banana@bananas.com": {
     name: "A Banana",
     email: "banana@bananas.com",
     password: "IAMABANANA!",
+    uniqueID: "u0001",
   },
 };
 
 const urlDatabase = {
-  b2xVn2: "http://www.lighthouselabs.ca",
+  b2xVn2: { longURL: "http://www.lighthouselabs.ca", uniqueID: "u0000" },
+  c3xVn3: { longURL: "http://www.google.com", uniqueID: "u0001" },
 };
 
 // RANDOM NUMBER FUNCTION
-const generateRandomString = function () {
+const generateRandomLinkID = function () {
   return (+new Date()).toString(36).slice(-6);
+};
+
+// RANDOM USERID FUNCTION
+const generateUserID = function () {
+  return "u" + (+new Date()).toString(36).slice(-4);
 };
 
 // SERVER REQUESTS*********************************
@@ -58,16 +66,16 @@ app.get("/urls", (req, res) => {
 
 // LOGIN page
 app.get("/login", (req, res) => {
-  if (req.cookies["user_id"]) {
-    console.log(`${req.cookies["user_id"]} already logged in. Redirecting.`);
-    res.redirect("/urls");
-  }
-
   const templateVars = {
     user_id: req.cookies["user_id"],
   };
 
-  res.render("login", templateVars);
+  if (req.cookies["user_id"]) {
+    console.log(`${req.cookies["user_id"]} already logged in. Redirecting.`);
+    res.redirect("/urls");
+  } else {
+    res.render("login", templateVars);
+  }
 });
 
 // LOGGING INTO THE SITE
@@ -91,10 +99,12 @@ app.post("/login", (req, res) => {
     emailExists(userDatabase, incomingEmail) &&
     !passwordMatch(userDatabase, incomingPassword)
   ) {
-    console.log(`${incomingEmail} exists but password mismatch.`);
-    res.redirect("/login");
+    res.status(400);
+    res.send(`${incomingEmail} exists but password mismatch.`);
   } else {
-    console.log(`User does not exist`);
+    res.status(400);
+    res.send(`User does not exist`);
+    console.log();
     res.redirect("/login");
   }
 });
@@ -102,7 +112,7 @@ app.post("/login", (req, res) => {
 // LOGOUT
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id", req.body.email);
-  res.redirect("/urls");
+  res.redirect("/login");
 });
 
 // REGISTER a new account
@@ -132,7 +142,7 @@ app.post("/register", (req, res) => {
   let regCheck = registrationHelper(userDatabase, details);
 
   if (regCheck !== 0) {
-    res.status(400);
+    res.sendStatus(400);
     if (regCheck === 1) {
       res.send(errorMessages.usernameMessage);
     } else if (regCheck === 2) {
@@ -158,7 +168,22 @@ app.get("/urls/new", (req, res) => {
     user_id: req.cookies["user_id"],
   };
 
-  res.render("urls_new", templateVars);
+  if (req.cookies["user_id"]) {
+    res.render("urls_new", templateVars);
+  } else {
+    res.redirect("/login");
+  }
+});
+
+// Make NEW URL
+app.post("/urls/", (req, res) => {
+  const newKey = generateRandomLinkID();
+  urlDatabase[newKey] = {
+    longURL: req.body.longURL,
+    uniqueID: req.cookies["user_id"].uniqueID,
+  };
+
+  res.redirect("/urls");
 });
 
 // FIND URL
@@ -170,14 +195,6 @@ app.get("/urls/:shortURL", (req, res) => {
   };
 
   res.render("urls_show", templateVars);
-});
-
-// Make NEW URL
-app.post("/urls/", (req, res) => {
-  const newKey = generateRandomString();
-  urlDatabase[newKey] = req.body.longURL;
-
-  res.redirect("/urls");
 });
 
 // DELETE existing URL
