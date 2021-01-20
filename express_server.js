@@ -14,6 +14,20 @@ app.use(cookieParser());
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true }));
 
+const userDatabase = {
+  "mail@mail.com": {
+    name: "Example Person",
+    email: "mail@mail.com",
+    password: "toyperson",
+  },
+
+  "banana@bananas.com": {
+    name: "A Banana",
+    email: "banana@bananas.com",
+    password: "IAMABANANA!",
+  },
+};
+
 const urlDatabase = {
   b2xVn2: "http://www.lighthouselabs.ca",
 };
@@ -23,7 +37,7 @@ const generateRandomString = function () {
   return (+new Date()).toString(36).slice(-6);
 };
 
-// SERVER REQUESTS
+// SERVER REQUESTS*********************************
 
 // INDEX of all URLS
 app.get("/urls", (req, res) => {
@@ -35,10 +49,22 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-// SET USERNAME
+// LOGIN page
+app.get("/login", (req, res) => {
+  const templateVars = {
+    username: req.cookies["username"],
+  };
+
+  res.render("login", templateVars);
+});
+
+// LOGIN SUBMIT
 app.post("/login", (req, res) => {
-  res.cookie("username", req.body.username);
-  res.redirect("/urls");
+  const templateVars = {
+    username: req.cookies["username"],
+  };
+
+  res.render("login", templateVars);
 });
 
 // LOGOUT
