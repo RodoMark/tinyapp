@@ -19,11 +19,11 @@
       </div>
       <% if(username) { %>
         <h5>Logged in as: <%= username %>  </h5>
-        <form class="nav-link" method="POST" action="/logout/">
+        <form method="POST" action="/logout/">
           <button>LOGOUT</button>
         </form>
       <% } else { %>
-        <form class="nav-link" method="POST" action="/login/">
+        <form method="POST" action="/login/">
           <label name="username">Sign In</label>
           <input name="username" placeholder="Enter username"></input>
           <button>SUBMIT</button>
