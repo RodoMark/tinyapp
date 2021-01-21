@@ -3,11 +3,13 @@ const bcrypt = require("bcrypt");
 const saltRounds = 10;
 
 const emailExists = function (userDatabase, email) {
-  if (userDatabase[email]) {
-    return true;
-  } else {
-    return false;
+  for (const key in userDatabase) {
+    // proper email
+    if (userDatabase[key]["email"] === email) {
+      return true;
+    }
   }
+  return false;
 };
 
 const passwordMatch = function (incomingPassword, requestedPassword) {
@@ -18,12 +20,24 @@ const passwordMatch = function (incomingPassword, requestedPassword) {
   }
 };
 
-const fetchUser = function (userDatabase, email) {
-  if (userDatabase[email]) {
-    return userDatabase[email];
+const fetchUser = function (userDatabase, uniqueID) {
+  if (userDatabase[uniqueID]) {
+    return userDatabase[uniqueID];
   } else {
     return false;
   }
+};
+
+const fetchUserByEmail = function (userDatabase, email) {
+  for (const user_id in userDatabase) {
+    if (userDatabase[user_id]["email"] === email) {
+      //proper email
+      return userDatabase[user_id];
+    }
+  }
+
+  // email doesn't exist
+  return false;
 };
 
 const urlsForUser = function (urlDatabase, uniqueID) {
@@ -93,6 +107,7 @@ module.exports = {
   addNewUser,
   emailExists,
   fetchUser,
+  fetchUserByEmail,
   generateLinkID,
   generateUserID,
   passwordMatch,

@@ -5,6 +5,7 @@ const {
   addNewUser,
   emailExists,
   fetchUser,
+  fetchUserByEmail,
   generateLinkID,
   generateUserID,
   passwordMatch,
@@ -92,7 +93,7 @@ app.get("/urls", (req, res) => {
 app.get("/login", (req, res) => {
   const templateVars = {
     loginRequiredMessage: "",
-    userInfo,
+    userInfo: {},
     usernameMessage: "",
   };
 
@@ -111,27 +112,30 @@ app.get("/login", (req, res) => {
 // LOG IN to the site
 app.post("/login", (req, res) => {
   const incomingEmail = req.body.email;
+  console.log("incomingEmail: ", incomingEmail);
   const incomingPassword = req.body.password;
-  const requestedPassword = userDatabase[incomingEmail]["password"];
+  console.log("incomingPassword: ", incomingPassword);
+  console.log("user", userDatabase[incomingEmail]);
+  console.log("fetchedUser: ", fetchUser(userDatabase, incomingEmail));
 
-  if (
-    emailExists(userDatabase, incomingEmail) &&
-    passwordMatch(incomingPassword, requestedPassword)
-  ) {
-    console.log(`${incomingEmail} exists and password is matching.`);
+  if (emailExists(userDatabase, incomingEmail)) {
+    // email for user exists
+    const fetchedUser = fetchUserByEmail(userDatabase, incomingEmail);
+    const requestedPassword = fetchedUser.password;
 
-    const fetchedUser = fetchUser(userDatabase, incomingEmail);
+    if (passwordMatch(incomingPassword, requestedPassword)) {
+      console.log(`${incomingEmail} exists and password is matching.`);
 
-    // this is the authentication that's passed to the user
-    req.session.user_id = fetchedUser["user_id"];
-    res.redirect("/urls");
-  } else if (
-    emailExists(userDatabase, incomingEmail) &&
-    !passwordMatch(incomingPassword, requestedPassword)
-  ) {
-    res.status(400);
-    res.send(`${incomingEmail} exists but password mismatch.`);
+      // this is the authentication that's passed to the user
+      req.session.user_id = fetchedUser["uniqueID"];
+      console.log("req.session.user_id", req.session.user_id);
+      res.redirect("/urls");
+    } else {
+      res.status(400);
+      res.send(`${incomingEmail} exists but password mismatch.`);
+    }
   } else {
+    // email cannot be found
     res.status(400);
     res.send(`User does not exist`);
     console.log();
@@ -182,9 +186,12 @@ app.post("/register", (req, res) => {
       res.send(errorMessage.passwordMessage);
     }
   } else {
-    userDatabase[details.incomingEmail] = addNewUser(details);
+    const generatedUser = addNewUser(details);
+
+    userDatabase[generatedUser.uniqueID] = generatedUser;
+    console.log(addNewUser(details));
     console.log(
-      `New user registered:\n ${userDatabase[details.incomingEmail]}`
+      `New user registered:\n ${userDatabase[generatedUser.uniqueID]}`
     );
     res.redirect("/urls");
   }
@@ -192,7 +199,14 @@ app.post("/register", (req, res) => {
 
 // ADD new url
 app.get("/urls/new", (req, res) => {
-  if (req.session["user_id"]) {
+  const user_id = req.session.user_id;
+  const userInfo = fetchUser(userDatabase, user_id);
+
+  const templateVars = {
+    userInfo,
+  };
+
+  if (req.session.user_id) {
     res.render("urls_new", templateVars);
   } else {
     res.redirect("/login");
@@ -214,10 +228,13 @@ app.post("/urls/", (req, res) => {
 
 // FIND url
 app.get("/urls/:shortURL", (req, res) => {
+  const user_id = req.session.user_id;
+  const userInfo = fetchUser(userDatabase, user_id);
+
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL]["longURL"],
-    user_id: req.cookies["user_id"],
+    userInfo,
   };
 
   res.render("urls_show", templateVars);
@@ -225,11 +242,12 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // DELETE existing URL
 app.post("/urls/:shortURL/delete", (req, res) => {
+  const user_id = req.session.user_id;
+  const userInfo = fetchUser(userDatabase, user_id);
+
   const requestKey = req.params.shortURL;
 
-  if (
-    req.cookies["user_id"]["uniqueID"] === urlDatabase[requestKey]["uniqueID"]
-  ) {
+  if (userInfo["uniqueID"] === urlDatabase[requestKey]["uniqueID"]) {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");
   } else {
@@ -239,11 +257,14 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 // UPDATE existing URL
 app.post("/urls/:shortURL/update", (req, res) => {
+  const user_id = req.session.user_id;
+  const userInfo = fetchUser(userDatabase, user_id);
+
   const requestKey = req.params.shortURL;
 
   if (
-    req.cookies["user_id"] &&
-    req.cookies["user_id"]["uniqueID"] === urlDatabase[requestKey]["uniqueID"]
+    userInfo &&
+    userInfo["uniqueID"] === urlDatabase[requestKey]["uniqueID"]
   ) {
     urlDatabase[req.params.shortURL]["longURL"] = req.body.longURL;
     res.redirect("/urls");
