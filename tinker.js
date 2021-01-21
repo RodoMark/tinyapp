@@ -1,4 +1,4 @@
-const belongsToUser = function (urlDatabase, uniqueID) {
+const urlsForUser = function (urlDatabase, uniqueID) {
   const urlSubset = {};
 
   for (const shortURL in urlDatabase) {
@@ -18,4 +18,4 @@ const urlDatabase = {
   c3xVn3: { longURL: "http://www.google.com", uniqueID: "u0001" },
 };
 
-console.log(belongsToUser(urlDatabase, "u0000"));
+console.log(urlsForUser(urlDatabase, "u0000"));

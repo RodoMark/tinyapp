@@ -18,7 +18,7 @@ const {
   emailExists,
   passwordMatch,
   fetchUser,
-  belongsToUser,
+  urlsForUser,
   registrationHelper,
 } = require("./usersHelper");
 
@@ -64,7 +64,7 @@ app.get("/urls", (req, res) => {
   };
 
   if (req.cookies["user_id"]) {
-    templateVars.urls = belongsToUser(
+    templateVars.urls = urlsForUser(
       urlDatabase,
       req.cookies["user_id"]["uniqueID"]
     );
@@ -218,9 +218,22 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // DELETE existing URL
 app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL];
+  const deleteKey = req.params.shortURL;
 
-  res.redirect("/urls");
+  console.log(urlDatabase[deleteKey]["uniqueID"]);
+  console.log(req.cookies["user_id"]);
+
+  if (
+    req.cookies["user_id"]["uniqueID"] === urlDatabase[deleteKey]["uniqueID"]
+  ) {
+    delete urlDatabase[req.params.shortURL];
+    res.redirect("/urls");
+  } else if (!req.cookies["user_id"]) {
+    res.redirect("login");
+  } else {
+    res.sendStatus(400);
+    res.send("Invalid authorization");
+  }
 });
 
 // UPDATE existing URL

@@ -22,7 +22,7 @@ const fetchUser = function (userDatabase, email) {
   }
 };
 
-const belongsToUser = function (urlDatabase, uniqueID) {
+const urlsForUser = function (urlDatabase, uniqueID) {
   const urlSubset = {};
 
   for (const shortURL in urlDatabase) {
@@ -58,6 +58,7 @@ module.exports = {
   emailExists,
   passwordMatch,
   fetchUser,
-  belongsToUser,
+  urlsForUser,
   registrationHelper,
+  urlsForUser,
 };
