@@ -61,8 +61,14 @@ const generateUserID = function () {
 app.get("/urls", (req, res) => {
   const templateVars = {
     user_id: req.cookies["user_id"],
-    urls: belongsToUser(urlDatabase, req.cookies["user_id"]["uniqueID"]),
   };
+
+  if (req.cookies["user_id"]) {
+    templateVars.urls = belongsToUser(
+      urlDatabase,
+      req.cookies["user_id"]["uniqueID"]
+    );
+  } else templateVars.urls = {};
 
   res.render("urls_index", templateVars);
 });
@@ -161,11 +167,13 @@ app.post("/register", (req, res) => {
       res.send(errorMessage.passwordMessage);
     }
   } else {
-    userDatabase[incomingEmail] = {
+    const newID = generateUserID();
+
+    userDatabase[details.incomingEmail] = {
       name: details.incomingName,
       email: details.incomingEmail,
       password: details.incomingPassword,
-      uniqueID: generateUserID(),
+      uniqueID: newID,
     };
     res.redirect("/urls");
   }
@@ -189,8 +197,10 @@ app.post("/urls/", (req, res) => {
   const newKey = generateRandomLinkID();
   urlDatabase[newKey] = {
     longURL: req.body.longURL,
-    uniqueID: req.cookies["user_id"].uniqueID,
+    uniqueID: req.cookies["user_id"]["uniqueID"],
   };
+
+  console.log(`New URL created ${urlDatabase[newKey]}`);
 
   res.redirect("/urls");
 });
@@ -199,7 +209,7 @@ app.post("/urls/", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
+    longURL: urlDatabase[req.params.shortURL]["longURL"],
     user_id: req.cookies["user_id"],
   };
 
