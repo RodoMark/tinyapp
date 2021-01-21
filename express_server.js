@@ -1,42 +1,5 @@
 "use strict";
 
-// DEPENDENCIES *****************************************
-
-// EXPRESS MODULE
-const express = require("express");
-const app = express();
-const PORT = 8080;
-app.set("view engine", "ejs");
-
-// ENCRYPTION MODULE
-const bcrypt = require("bcrypt");
-
-// METHOD OVERRIDE MODULE
-const methodOverride = require("./method-override");
-// app.use(methodOverride());
-
-// COOKIE SESSION MODULE
-const cookieSession = require("cookie-session");
-
-const cookieParser = require("cookie-parser");
-app.use(cookieParser());
-
-// BODY PARSER MODULE
-const bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({ extended: true }));
-
-// MORGAN MODULE
-const morgan = require("./morgan");
-app.use(morgan("short"));
-
-const currentUser = (req, res, next) => {
-  const user = usersDatabase[req.session["user_id"]];
-  req.currentUser = user;
-  next();
-};
-
-app.use(currentUser);
-
 // DRIVER CODE FOR USER FEATURES*********************************
 const {
   addNewUser,
@@ -53,6 +16,43 @@ const {
 const userDatabase = {};
 
 const urlDatabase = {};
+
+// DEPENDENCIES *****************************************
+
+// EXPRESS MODULE
+const express = require("express");
+const app = express();
+const PORT = 8080;
+app.set("view engine", "ejs");
+
+// ENCRYPTION MODULE
+const bcrypt = require("bcrypt");
+
+// METHOD OVERRIDE MODULE
+const methodOverride = require("method-override");
+// app.use(methodOverride());
+
+// COOKIE SESSION MODULE
+const cookieSession = require("cookie-session");
+
+const cookieParser = require("cookie-parser");
+app.use(cookieParser());
+
+// BODY PARSER MODULE
+const bodyParser = require("body-parser");
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// // MORGAN MODULE
+// const morgan = require("morgan");
+// app.use(morgan("short"));
+
+// const currentUser = (req, res, next) => {
+//   const user = userDatabase[req.session["user_id"]];
+//   req.currentUser = user;
+//   next();
+// };
+
+// app.use(currentUser);
 
 // SERVER REQUESTS*********************************
 
