@@ -20,6 +20,7 @@ const {
   fetchUser,
   urlsForUser,
   registrationHelper,
+  rejectUser,
 } = require("./usersHelper");
 
 const userDatabase = {
@@ -218,30 +219,26 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // DELETE existing URL
 app.post("/urls/:shortURL/delete", (req, res) => {
-  const deleteKey = req.params.shortURL;
-
-  console.log(urlDatabase[deleteKey]["uniqueID"]);
-  console.log(req.cookies["user_id"]);
-
   if (
-    req.cookies["user_id"]["uniqueID"] === urlDatabase[deleteKey]["uniqueID"]
+    req.cookies["user_id"]["uniqueID"] === urlDatabase[requestKey]["uniqueID"]
   ) {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");
-  } else if (!req.cookies["user_id"]) {
-    res.redirect("/login");
   } else {
-    res.sendStatus(400);
-    res.send("Invalid authorization");
+    rejectUser();
   }
 });
 
 // UPDATE existing URL
 app.post("/urls/:shortURL/update", (req, res) => {
-  console.log(req.params);
-  urlDatabase[req.params.shortURL]["longURL"] = req.body.longURL;
-
-  res.redirect("/urls");
+  if (
+    req.cookies["user_id"]["uniqueID"] === urlDatabase[requestKey]["uniqueID"]
+  ) {
+    urlDatabase[req.params.shortURL]["longURL"] = req.body.longURL;
+    res.redirect("/urls");
+  } else {
+    rejectUser();
+  }
 });
 
 app.listen(PORT, () => {
