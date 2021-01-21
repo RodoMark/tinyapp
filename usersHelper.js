@@ -10,8 +10,8 @@ const emailExists = function (userDatabase, email) {
   }
 };
 
-const passwordMatch = function (userDatabase, email, password) {
-  if (userDatabase[email]["password"] === password) {
+const passwordMatch = function (incomingPassword, requestedPassword) {
+  if (bcrypt.compareSync(incomingPassword, requestedPassword)) {
     return true;
   } else {
     return false;
@@ -22,7 +22,7 @@ const fetchUser = function (userDatabase, email) {
   if (userDatabase[email]) {
     return userDatabase[email];
   } else {
-    return {};
+    return false;
   }
 };
 

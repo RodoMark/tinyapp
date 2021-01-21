@@ -30,11 +30,17 @@ const bcrypt = require("bcrypt");
 
 // METHOD OVERRIDE MODULE
 const methodOverride = require("method-override");
+app.use(methodOverride("_method"));
 // app.use(methodOverride());
 
 // COOKIE SESSION MODULE
 const cookieSession = require("cookie-session");
-app.use(methodOverride("_method"));
+app.use(
+  cookieSession({
+    name: "session",
+    keys: ["key1", "key2"],
+  })
+);
 
 // const cookieParser = require("cookie-parser");
 // app.use(cookieParser());
@@ -63,20 +69,21 @@ app.get("/users", (req, res) => {
 
 // INDEX of all urls
 app.get("/urls", (req, res) => {
+  const user_id = req.session.user_id;
+  const userInfo = fetchUser(userDatabase, user_id);
+
   const templateVars = {
-    user_id: req.cookies["user_id"],
     urls: {},
-    message: "",
+    loginRequiredMessage: "",
+    userInfo,
   };
 
-  if (req.cookies["user_id"]) {
-    templateVars.urls = urlsForUser(
-      urlDatabase,
-      req.cookies["user_id"]["uniqueID"]
-    );
+  if (user_id) {
+    templateVars.userInfo = userInfo;
+    templateVars.urls = urlsForUser(urlDatabase, user_id["uniqueID"]);
     res.render("urls_index", templateVars);
   } else {
-    templateVars.loginMessage = "Please log in to see your links";
+    templateVars.loginRequiredMessage = "Please log in to see your links";
     res.render("login", templateVars);
   }
 });
@@ -84,17 +91,19 @@ app.get("/urls", (req, res) => {
 // LOGIN page
 app.get("/login", (req, res) => {
   const templateVars = {
-    user_id: req.cookies["user_id"],
+    loginRequiredMessage: "",
+    userInfo,
+    usernameMessage: "",
   };
 
-  if (req.cookies["user_id"]) {
-    console.log(`${req.cookies["user_id"]} already logged in. Redirecting.`);
+  if (req.session.user_id) {
+    console.log(`${req.session.user_id} already logged in. Redirecting.`);
     res.redirect("/urls");
   } else if (req.headers["sec-fetch-site"] === "same-origin") {
-    templateVars.loginMessage = "Please log in to see your links";
+    templateVars.loginRequiredMessage = "Please log in to see your links";
     res.render("login", templateVars);
   } else {
-    templateVars.message = "";
+    templateVars.loginRequiredmessage = "";
     res.render("login", templateVars);
   }
 });
@@ -104,28 +113,21 @@ app.post("/login", (req, res) => {
   const incomingEmail = req.body.email;
   const incomingPassword = req.body.password;
   const requestedPassword = userDatabase[incomingEmail]["password"];
-  console.log("requested: ", requestedPassword, "incoming: ", incomingPassword);
-  console.log(requestedPassword === incomingPassword);
 
   if (
     emailExists(userDatabase, incomingEmail) &&
-    bcrypt.compareSync(incomingPassword, requestedPassword)
+    passwordMatch(incomingPassword, requestedPassword)
   ) {
     console.log(`${incomingEmail} exists and password is matching.`);
 
     const fetchedUser = fetchUser(userDatabase, incomingEmail);
 
     // this is the authentication that's passed to the user
-    res.cookie("user_id", {
-      name: fetchedUser["name"],
-      email: fetchedUser["email"],
-      password: fetchedUser["password"],
-      uniqueID: fetchedUser["uniqueID"],
-    });
+    req.session.user_id = fetchedUser["user_id"];
     res.redirect("/urls");
   } else if (
     emailExists(userDatabase, incomingEmail) &&
-    !bcrypt.compareSync(incomingPassword, requestedPassword)
+    !passwordMatch(incomingPassword, requestedPassword)
   ) {
     res.status(400);
     res.send(`${incomingEmail} exists but password mismatch.`);
@@ -139,14 +141,14 @@ app.post("/login", (req, res) => {
 
 // LOGOUT
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id", req.body.email);
+  req.session = null;
   res.redirect("/login");
 });
 
 // REGISTER new account
 app.get("/register", (req, res) => {
   const templateVars = {
-    user_id: req.cookies["user_id"],
+    userInfo: {},
   };
 
   res.render("register", templateVars);
@@ -190,11 +192,7 @@ app.post("/register", (req, res) => {
 
 // ADD new url
 app.get("/urls/new", (req, res) => {
-  const templateVars = {
-    user_id: req.cookies["user_id"],
-  };
-
-  if (req.cookies["user_id"]) {
+  if (req.session["user_id"]) {
     res.render("urls_new", templateVars);
   } else {
     res.redirect("/login");
@@ -206,7 +204,7 @@ app.post("/urls/", (req, res) => {
   const newKey = generateLinkID();
   urlDatabase[newKey] = {
     longURL: req.body.longURL,
-    uniqueID: req.cookies["user_id"]["uniqueID"],
+    uniqueID: req.session["user_id"]["uniqueID"],
   };
 
   console.log(`New URL created ${JSON.stringify(urlDatabase[newKey])}`);

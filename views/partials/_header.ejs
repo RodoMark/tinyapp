@@ -17,8 +17,9 @@
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
-      <% if(user_id) { %>
-      <h5>Logged in as: <%= user_id.name %></h5>
+      <% if(userInfo.name) { %>
+      <h5>Logged in as: <%= userInfo.name %></h5>
+
       <form method="POST" action="/logout">
         <button>LOGOUT</button>
       </form>
