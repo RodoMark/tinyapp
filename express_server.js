@@ -11,7 +11,11 @@ const PORT = 8080; // default port 8080
 
 app.set("view engine", "ejs");
 
+const methodOverride = require("./method-override");
+// app.use(methodOverride());
+
 const cookieSession = require("cookie-session");
+
 const cookieParser = require("cookie-parser");
 app.use(cookieParser());
 
@@ -42,9 +46,6 @@ app.get("/users", (req, res) => {
 
 // INDEX of all URLS
 app.get("/urls", (req, res) => {
-  const notLoggedIn = !req.cookies["user_id"];
-  console.log(notLoggedIn);
-
   const templateVars = {
     user_id: req.cookies["user_id"],
     urls: {},
@@ -54,11 +55,11 @@ app.get("/urls", (req, res) => {
   if (req.cookies["user_id"]) {
     templateVars.urls = urlsForUser(
       urlDatabase,
-      req.cookies["user_id"]["uniqueID"],
-      res.render("urls_index", templateVars)
+      req.cookies["user_id"]["uniqueID"]
     );
+    res.render("urls_index", templateVars);
   } else {
-    templateVars.message = "Please log in to see your links";
+    templateVars.loginMessage = "Please log in to see your links";
     res.render("login", templateVars);
   }
 });
@@ -72,6 +73,9 @@ app.get("/login", (req, res) => {
   if (req.cookies["user_id"]) {
     console.log(`${req.cookies["user_id"]} already logged in. Redirecting.`);
     res.redirect("/urls");
+  } else if (req.headers["sec-fetch-site"] === "same-origin") {
+    templateVars.loginMessage = "Please log in to see your links";
+    res.render("login", templateVars);
   } else {
     templateVars.message = "";
     res.render("login", templateVars);
@@ -160,7 +164,9 @@ app.post("/register", (req, res) => {
     }
   } else {
     userDatabase[details.incomingEmail] = addNewUser(details);
-    console.log(userDatabase[details.incomingEmail]);
+    console.log(
+      `New user registered:\n ${userDatabase[details.incomingEmail]}`
+    );
     res.redirect("/urls");
   }
 });
@@ -186,7 +192,7 @@ app.post("/urls/", (req, res) => {
     uniqueID: req.cookies["user_id"]["uniqueID"],
   };
 
-  console.log(`New URL created ${urlDatabase[newKey]}`);
+  console.log(`New URL created ${JSON.stringify(urlDatabase[newKey])}`);
 
   res.redirect("/urls");
 });
