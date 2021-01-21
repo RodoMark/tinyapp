@@ -34,9 +34,10 @@ const methodOverride = require("method-override");
 
 // COOKIE SESSION MODULE
 const cookieSession = require("cookie-session");
+app.use(methodOverride("_method"));
 
-const cookieParser = require("cookie-parser");
-app.use(cookieParser());
+// const cookieParser = require("cookie-parser");
+// app.use(cookieParser());
 
 // BODY PARSER MODULE
 const bodyParser = require("body-parser");
