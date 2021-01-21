@@ -14,9 +14,21 @@ const {
   urlsForUser,
 } = require("./usersHelper");
 
-const userDatabase = {};
+const userDatabase = {
+  sample: {
+    name: "example",
+    email: "example@mail.com",
+    password: "password",
+    uniqueID: "u0000",
+  },
+};
 
-const urlDatabase = {};
+const urlDatabase = {
+  exampl: {
+    longURL: "www.example.com",
+    uniqueID: "u0000",
+  },
+};
 
 // DEPENDENCIES *****************************************
 
