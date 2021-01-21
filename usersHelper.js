@@ -54,16 +54,16 @@ const registrationHelper = function (userDatabase, details) {
   }
 };
 
-const addNewUser = function {
+const addNewUser = function (details) {
   const newID = generateUserID();
 
-    userDatabase[details.incomingEmail] = {
-      name: details.incomingName,
-      email: details.incomingEmail,
-      password: bcrypt.hashSync(details.incomingPassword, 8),
-      uniqueID: newID,
-    };
-} ;
+  userDatabase[details.incomingEmail] = {
+    name: details.incomingName,
+    email: details.incomingEmail,
+    password: bcrypt.hashSync(details.incomingPassword, saltRounds),
+    uniqueID: newID,
+  };
+};
 
 const rejectRequest = function (res) {
   return res.status(401).json({
@@ -71,13 +71,11 @@ const rejectRequest = function (res) {
   });
 };
 
-
-
 module.exports = {
+  addNewUser,
   emailExists,
-  passwordMatch,
   fetchUser,
-  urlsForUser,
+  passwordMatch,
   registrationHelper,
   urlsForUser,
   rejectRequest,

@@ -1,7 +1,9 @@
 "use strict";
 
 const morgan = require("morgan");
+
 const bcrypt = require("bcrypt");
+const saltRounds = 10;
 
 const express = require("express");
 const app = express();
@@ -9,6 +11,7 @@ const PORT = 8080; // default port 8080
 
 app.set("view engine", "ejs");
 
+const cookieSession = require("cookie-session");
 const cookieParser = require("cookie-parser");
 app.use(cookieParser());
 
@@ -16,12 +19,13 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const {
+  addNewUser,
   emailExists,
-  passwordMatch,
   fetchUser,
-  urlsForUser,
+  passwordMatch,
   registrationHelper,
   rejectRequest,
+  urlsForUser,
 } = require("./usersHelper");
 
 const userDatabase = {};
@@ -39,6 +43,10 @@ const generateUserID = function () {
 };
 
 // SERVER REQUESTS*********************************
+
+app.get("/users", (req, res) => {
+  res.send(JSON.stringify(userDatabase));
+});
 
 // INDEX of all URLS
 app.get("/urls", (req, res) => {
@@ -160,14 +168,7 @@ app.post("/register", (req, res) => {
       res.send(errorMessage.passwordMessage);
     }
   } else {
-    const newID = generateUserID();
-
-    userDatabase[details.incomingEmail] = {
-      name: details.incomingName,
-      email: details.incomingEmail,
-      password: bcrypt.hashSync(details.incomingPassword, 8),
-      uniqueID: newID,
-    };
+    addNewUser(details);
     res.redirect("/urls");
   }
 });
