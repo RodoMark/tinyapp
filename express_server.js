@@ -1,6 +1,7 @@
 "use strict";
 
 const morgan = require("morgan");
+const bcrypt = require("bcrypt");
 
 const express = require("express");
 const app = express();
@@ -23,28 +24,9 @@ const {
   rejectRequest,
 } = require("./usersHelper");
 
-const userDatabase = {
-  "mail@mail.com": {
-    name: "Example Person",
-    email: "mail@mail.com",
-    password: "toyperson",
-    uniqueID: "u0000",
-  },
+const userDatabase = {};
 
-  "banana@bananas.com": {
-    name: "A Banana",
-    email: "banana@bananas.com",
-    password: "IAMABANANA!",
-    uniqueID: "u0001",
-  },
-};
-
-const urlDatabase = {
-  b2xVn2: { longURL: "http://www.lighthouselabs.ca", uniqueID: "u0000" },
-  c3xVn3: { longURL: "http://www.google.com", uniqueID: "u0001" },
-  d4xVn4: { longURL: "http://www.facebook.com", uniqueID: "u0000" },
-  e5xVn5: { longURL: "http://www.instagram.com", uniqueID: "u0000" },
-};
+const urlDatabase = {};
 
 // RANDOM NUMBER FUNCTION
 const generateRandomLinkID = function () {
@@ -99,12 +81,14 @@ app.get("/login", (req, res) => {
 // LOGGING INTO THE SITE
 app.post("/login", (req, res) => {
   const incomingEmail = req.body.email;
-  const incomingPassword = req.body.password;
-  console.log(incomingEmail, incomingPassword);
+  const incomingPassword = bcrypt.hashSync(req.body.password, 8);
+  const requestedPassword = userDatabase[incomingEmail]["password"];
+  console.log("requested: ", requestedPassword, "incoming: ", incomingPassword);
+  console.log(requestedPassword === incomingPassword);
 
   if (
     emailExists(userDatabase, incomingEmail) &&
-    passwordMatch(userDatabase, incomingEmail, incomingPassword)
+    bcrypt.compareSync(incomingPassword, requestedPassword)
   ) {
     console.log(`${incomingEmail} exists and password is matching.`);
 
@@ -120,7 +104,7 @@ app.post("/login", (req, res) => {
     res.redirect("/urls");
   } else if (
     emailExists(userDatabase, incomingEmail) &&
-    !passwordMatch(userDatabase, incomingPassword)
+    !bcrypt.compareSync(incomingPassword, requestedPassword)
   ) {
     res.status(400);
     res.send(`${incomingEmail} exists but password mismatch.`);
@@ -181,7 +165,7 @@ app.post("/register", (req, res) => {
     userDatabase[details.incomingEmail] = {
       name: details.incomingName,
       email: details.incomingEmail,
-      password: details.incomingPassword,
+      password: bcrypt.hashSync(details.incomingPassword, 8),
       uniqueID: newID,
     };
     res.redirect("/urls");

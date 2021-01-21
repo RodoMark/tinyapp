@@ -54,11 +54,24 @@ const registrationHelper = function (userDatabase, details) {
   }
 };
 
+const addNewUser = function {
+  const newID = generateUserID();
+
+    userDatabase[details.incomingEmail] = {
+      name: details.incomingName,
+      email: details.incomingEmail,
+      password: bcrypt.hashSync(details.incomingPassword, 8),
+      uniqueID: newID,
+    };
+} ;
+
 const rejectRequest = function (res) {
   return res.status(401).json({
     message: "Unauthorized Request",
   });
 };
+
+
 
 module.exports = {
   emailExists,
