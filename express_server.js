@@ -229,7 +229,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");
   } else if (!req.cookies["user_id"]) {
-    res.redirect("login");
+    res.redirect("/login");
   } else {
     res.sendStatus(400);
     res.send("Invalid authorization");
@@ -238,7 +238,8 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 // UPDATE existing URL
 app.post("/urls/:shortURL/update", (req, res) => {
-  urlDatabase[req.params.shortURL] = req.body.longURL;
+  console.log(req.params);
+  urlDatabase[req.params.shortURL]["longURL"] = req.body.longURL;
 
   res.redirect("/urls");
 });
