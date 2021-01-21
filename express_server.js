@@ -20,7 +20,7 @@ const {
   fetchUser,
   urlsForUser,
   registrationHelper,
-  rejectUser,
+  rejectRequest,
 } = require("./usersHelper");
 
 const userDatabase = {
@@ -219,25 +219,29 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // DELETE existing URL
 app.post("/urls/:shortURL/delete", (req, res) => {
+  const requestKey = req.params.shortURL;
+
   if (
     req.cookies["user_id"]["uniqueID"] === urlDatabase[requestKey]["uniqueID"]
   ) {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");
   } else {
-    rejectUser();
+    rejectRequest();
   }
 });
 
 // UPDATE existing URL
 app.post("/urls/:shortURL/update", (req, res) => {
+  const requestKey = req.params.shortURL;
+
   if (
     req.cookies["user_id"]["uniqueID"] === urlDatabase[requestKey]["uniqueID"]
   ) {
     urlDatabase[req.params.shortURL]["longURL"] = req.body.longURL;
     res.redirect("/urls");
   } else {
-    rejectUser();
+    rejectRequest();
   }
 });
 

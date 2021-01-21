@@ -54,7 +54,7 @@ const registrationHelper = function (userDatabase, details) {
   }
 };
 
-const rejectUser = function (cookies, requestKey, callback) {
+const rejectRequest = function (cookies, requestKey, callback) {
   res.sendStatus(400);
   res.send("Invalid authorization");
 };
@@ -66,5 +66,5 @@ module.exports = {
   urlsForUser,
   registrationHelper,
   urlsForUser,
-  rejectUser,
+  rejectRequest,
 };
