@@ -1,3 +1,7 @@
+const { userDatabase } = require("./express_server.js");
+const bcrypt = require("bcrypt");
+const saltRounds = 10;
+
 const emailExists = function (userDatabase, email) {
   if (userDatabase[email]) {
     return true;
@@ -54,15 +58,29 @@ const registrationHelper = function (userDatabase, details) {
   }
 };
 
+// RANDOM LINKID FUNCTION
+const generateLinkID = function () {
+  return (+new Date()).toString(36).slice(-6);
+};
+
+// RANDOM USERID FUNCTION
+const generateUserID = function () {
+  return "u" + (+new Date()).toString(36).slice(-4);
+};
+
+// NEW USER FUNCTION
 const addNewUser = function (details) {
+  console.log(details.incomingName);
   const newID = generateUserID();
 
-  userDatabase[details.incomingEmail] = {
+  newUser = {
     name: details.incomingName,
     email: details.incomingEmail,
     password: bcrypt.hashSync(details.incomingPassword, saltRounds),
     uniqueID: newID,
   };
+
+  return newUser;
 };
 
 const rejectRequest = function (res) {
@@ -75,6 +93,8 @@ module.exports = {
   addNewUser,
   emailExists,
   fetchUser,
+  generateLinkID,
+  generateUserID,
   passwordMatch,
   registrationHelper,
   urlsForUser,

@@ -22,6 +22,8 @@ const {
   addNewUser,
   emailExists,
   fetchUser,
+  generateLinkID,
+  generateUserID,
   passwordMatch,
   registrationHelper,
   rejectRequest,
@@ -31,16 +33,6 @@ const {
 const userDatabase = {};
 
 const urlDatabase = {};
-
-// RANDOM NUMBER FUNCTION
-const generateRandomLinkID = function () {
-  return (+new Date()).toString(36).slice(-6);
-};
-
-// RANDOM USERID FUNCTION
-const generateUserID = function () {
-  return "u" + (+new Date()).toString(36).slice(-4);
-};
 
 // SERVER REQUESTS*********************************
 
@@ -89,7 +81,7 @@ app.get("/login", (req, res) => {
 // LOGGING INTO THE SITE
 app.post("/login", (req, res) => {
   const incomingEmail = req.body.email;
-  const incomingPassword = bcrypt.hashSync(req.body.password, 8);
+  const incomingPassword = req.body.password;
   const requestedPassword = userDatabase[incomingEmail]["password"];
   console.log("requested: ", requestedPassword, "incoming: ", incomingPassword);
   console.log(requestedPassword === incomingPassword);
@@ -102,7 +94,7 @@ app.post("/login", (req, res) => {
 
     const fetchedUser = fetchUser(userDatabase, incomingEmail);
 
-    // This is the authentication that's pass to the user
+    // This is the authentication that's passed to the user
     res.cookie("user_id", {
       name: fetchedUser["name"],
       email: fetchedUser["email"],
@@ -131,7 +123,6 @@ app.post("/logout", (req, res) => {
 });
 
 // REGISTER a new account
-
 app.get("/register", (req, res) => {
   const templateVars = {
     user_id: req.cookies["user_id"],
@@ -157,7 +148,7 @@ app.post("/register", (req, res) => {
   let regCheck = registrationHelper(userDatabase, details);
 
   if (regCheck !== 0) {
-    res.sendStatus(400);
+    res.status(400);
     if (regCheck === 1) {
       res.send(errorMessages.usernameMessage);
     } else if (regCheck === 2) {
@@ -168,7 +159,8 @@ app.post("/register", (req, res) => {
       res.send(errorMessage.passwordMessage);
     }
   } else {
-    addNewUser(details);
+    userDatabase[details.incomingEmail] = addNewUser(details);
+    console.log(userDatabase[details.incomingEmail]);
     res.redirect("/urls");
   }
 });
@@ -188,7 +180,7 @@ app.get("/urls/new", (req, res) => {
 
 // Make NEW URL
 app.post("/urls/", (req, res) => {
-  const newKey = generateRandomLinkID();
+  const newKey = generateLinkID();
   urlDatabase[newKey] = {
     longURL: req.body.longURL,
     uniqueID: req.cookies["user_id"]["uniqueID"],
@@ -242,3 +234,7 @@ app.post("/urls/:shortURL/update", (req, res) => {
 app.listen(PORT, () => {
   console.log(`TinyApp listening on port ${PORT}!`);
 });
+
+module.exports = {
+  userDatabase,
+};
