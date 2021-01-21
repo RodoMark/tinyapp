@@ -60,18 +60,25 @@ const generateUserID = function () {
 
 // INDEX of all URLS
 app.get("/urls", (req, res) => {
+  const notLoggedIn = !req.cookies["user_id"];
+  console.log(notLoggedIn);
+
   const templateVars = {
     user_id: req.cookies["user_id"],
+    urls: {},
+    message: "",
   };
 
   if (req.cookies["user_id"]) {
     templateVars.urls = urlsForUser(
       urlDatabase,
-      req.cookies["user_id"]["uniqueID"]
+      req.cookies["user_id"]["uniqueID"],
+      res.render("urls_index", templateVars)
     );
-  } else templateVars.urls = {};
-
-  res.render("urls_index", templateVars);
+  } else {
+    templateVars.message = "Please log in to see your links";
+    res.render("login", templateVars);
+  }
 });
 
 // LOGIN page
@@ -84,6 +91,7 @@ app.get("/login", (req, res) => {
     console.log(`${req.cookies["user_id"]} already logged in. Redirecting.`);
     res.redirect("/urls");
   } else {
+    templateVars.message = "";
     res.render("login", templateVars);
   }
 });
@@ -227,7 +235,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");
   } else {
-    rejectRequest();
+    rejectRequest(res);
   }
 });
 
@@ -236,12 +244,13 @@ app.post("/urls/:shortURL/update", (req, res) => {
   const requestKey = req.params.shortURL;
 
   if (
+    req.cookies["user_id"] &&
     req.cookies["user_id"]["uniqueID"] === urlDatabase[requestKey]["uniqueID"]
   ) {
     urlDatabase[req.params.shortURL]["longURL"] = req.body.longURL;
     res.redirect("/urls");
   } else {
-    rejectRequest();
+    rejectRequest(res);
   }
 });
 
