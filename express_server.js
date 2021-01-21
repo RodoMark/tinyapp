@@ -1,27 +1,43 @@
 "use strict";
 
-const morgan = require("morgan");
+// DEPENDENCIES *****************************************
 
-const bcrypt = require("bcrypt");
-const saltRounds = 10;
-
+// EXPRESS MODULE
 const express = require("express");
 const app = express();
-const PORT = 8080; // default port 8080
-
+const PORT = 8080;
 app.set("view engine", "ejs");
 
+// ENCRYPTION MODULE
+const bcrypt = require("bcrypt");
+
+// METHOD OVERRIDE MODULE
 const methodOverride = require("./method-override");
 // app.use(methodOverride());
 
+// COOKIE SESSION MODULE
 const cookieSession = require("cookie-session");
 
 const cookieParser = require("cookie-parser");
 app.use(cookieParser());
 
+// BODY PARSER MODULE
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// MORGAN MODULE
+const morgan = require("./morgan");
+app.use(morgan("short"));
+
+const currentUser = (req, res, next) => {
+  const user = usersDatabase[req.session["user_id"]];
+  req.currentUser = user;
+  next();
+};
+
+app.use(currentUser);
+
+// DRIVER CODE FOR USER FEATURES*********************************
 const {
   addNewUser,
   emailExists,
@@ -44,7 +60,7 @@ app.get("/users", (req, res) => {
   res.send(JSON.stringify(userDatabase));
 });
 
-// INDEX of all URLS
+// INDEX of all urls
 app.get("/urls", (req, res) => {
   const templateVars = {
     user_id: req.cookies["user_id"],
@@ -82,7 +98,7 @@ app.get("/login", (req, res) => {
   }
 });
 
-// LOGGING INTO THE SITE
+// LOG IN to the site
 app.post("/login", (req, res) => {
   const incomingEmail = req.body.email;
   const incomingPassword = req.body.password;
@@ -98,7 +114,7 @@ app.post("/login", (req, res) => {
 
     const fetchedUser = fetchUser(userDatabase, incomingEmail);
 
-    // This is the authentication that's passed to the user
+    // this is the authentication that's passed to the user
     res.cookie("user_id", {
       name: fetchedUser["name"],
       email: fetchedUser["email"],
@@ -126,7 +142,7 @@ app.post("/logout", (req, res) => {
   res.redirect("/login");
 });
 
-// REGISTER a new account
+// REGISTER new account
 app.get("/register", (req, res) => {
   const templateVars = {
     user_id: req.cookies["user_id"],
@@ -171,7 +187,7 @@ app.post("/register", (req, res) => {
   }
 });
 
-// adding NEW URLS
+// ADD new url
 app.get("/urls/new", (req, res) => {
   const templateVars = {
     user_id: req.cookies["user_id"],
@@ -184,7 +200,7 @@ app.get("/urls/new", (req, res) => {
   }
 });
 
-// Make NEW URL
+// GENERATE new url
 app.post("/urls/", (req, res) => {
   const newKey = generateLinkID();
   urlDatabase[newKey] = {
@@ -197,7 +213,7 @@ app.post("/urls/", (req, res) => {
   res.redirect("/urls");
 });
 
-// FIND URL
+// FIND url
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,

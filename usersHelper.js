@@ -1,4 +1,4 @@
-const { userDatabase } = require("./express_server.js");
+const { userDatabase, urlDatabase } = require("./express_server.js");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 
