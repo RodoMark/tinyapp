@@ -24,8 +24,10 @@ const userDatabase = {
 
 const urlDatabase = {
   exampl: {
+    clicks: 0,
     longURL: "www.example.com",
     uniqueID: "u0000",
+    visitors: {},
   },
 };
 
@@ -206,8 +208,10 @@ app.get("/urls/new", (req, res) => {
 app.post("/urls/", (req, res) => {
   const newKey = generateLinkID();
   urlDatabase[newKey] = {
+    clicks: 0,
     longURL: req.body.longURL,
     uniqueID: req.session.user.id,
+    visitors: {},
   };
 
   res.redirect("/urls");
