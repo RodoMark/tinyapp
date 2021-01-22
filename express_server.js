@@ -45,7 +45,6 @@ const bcrypt = require("bcrypt");
 // METHOD OVERRIDE MODULE
 const methodOverride = require("method-override");
 app.use(methodOverride("_method"));
-// app.use(methodOverride());
 
 // COOKIE SESSION MODULE
 const cookieSession = require("cookie-session");
@@ -220,7 +219,7 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 // DELETE existing URL
-app.post("/urls/:shortURL/delete", (req, res) => {
+app.delete("/urls/:shortURL", (req, res) => {
   const user_id = req.session.user.id;
 
   const userInfo = req.session.user;
@@ -236,7 +235,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 // UPDATE existing URL
-app.post("/urls/:shortURL/update", (req, res) => {
+app.put("/urls/:shortURL", (req, res) => {
   const user_id = req.session.user.id;
   const userInfo = req.session.user;
 
