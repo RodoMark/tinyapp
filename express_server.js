@@ -56,37 +56,14 @@ app.use(
   })
 );
 
-// const cookieParser = require("cookie-parser");
-// app.use(cookieParser());
-
 // BODY PARSER MODULE
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// // MORGAN MODULE
-// const morgan = require("morgan");
-// app.use(morgan("short"));
-
-// const currentUser = (req, res, next) => {
-//   const user = userDatabase[req.session["user_id"]];
-//   req.currentUser = user;
-//   next();
-// };
-
-// app.use(currentUser);
-
 // SERVER REQUESTS*********************************
 
 app.get("/", (req, res) => {
-  res.redirect("/register");
-});
-
-app.get("/urldb", (req, res) => {
-  res.send(JSON.stringify(urlDatabase));
-});
-
-app.get("/users", (req, res) => {
-  res.send(JSON.stringify(userDatabase));
+  res.redirect("/login");
 });
 
 // INDEX of all urls
@@ -118,7 +95,6 @@ app.get("/login", (req, res) => {
   };
 
   if (req.session.user) {
-    console.log(`${req.session.user} already logged in. Redirecting.`);
     res.redirect("/urls");
   } else if (req.headers["sec-fetch-site"] === "same-origin") {
     templateVars.loginRequiredMessage = "Please log in to see your links";
@@ -140,8 +116,6 @@ app.post("/login", (req, res) => {
     const requestedPassword = fetchedUser.password;
 
     if (passwordMatch(incomingPassword, requestedPassword)) {
-      console.log(`${incomingEmail} exists and password is matching.`);
-
       // this is the authentication that's passed to the user
       req.session.user = fetchedUser["uniqueID"];
       res.redirect("/urls");
@@ -153,7 +127,6 @@ app.post("/login", (req, res) => {
     // email cannot be found
     res.status(400);
     res.send(`User does not exist`);
-    console.log();
     res.redirect("/login");
   }
 });
@@ -204,10 +177,6 @@ app.post("/register", (req, res) => {
     req.session.user = addNewUser(details);
     const user = req.session.user;
     userDatabase[user.id] = user;
-
-    console.log(
-      `New user registered:\n ${JSON.stringify(userDatabase[user.id])}`
-    );
     res.redirect("/login");
   }
 });
@@ -215,7 +184,6 @@ app.post("/register", (req, res) => {
 // ADD new url
 app.get("/urls/new", (req, res) => {
   const user_id = req.session.user.id;
-  console.log(req.session.user);
   const userInfo = fetchUser(userDatabase, user_id);
 
   const templateVars = {
@@ -236,8 +204,6 @@ app.post("/urls/", (req, res) => {
     longURL: req.body.longURL,
     uniqueID: req.session.user.id,
   };
-
-  console.log(`New URL created ${JSON.stringify(urlDatabase[newKey])}`);
 
   res.redirect("/urls");
 });
@@ -260,7 +226,6 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   const userInfo = req.session.user;
 
   const requestKey = req.params.shortURL;
-  console.log("REQUEST KEY: ", req.params.shortURL);
 
   if (userInfo["uniqueID"] === urlDatabase[requestKey][user_id]) {
     delete urlDatabase[req.params.shortURL];
