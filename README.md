@@ -23,3 +23,9 @@ TinyApp is a full stack web application built with Node and Express that allows 
 - Run the development web server using the `node express_server.js` command.
 - Access the site on your local host via the PORT in the express server (example: http://localhost:8080/)
 - Register for a user profile and start creating your links!
+
+## Features
+
+- Links are saved in your account until the server restarts.
+- Update your links to change the long URL without changing the short one.
+- Send your links to friends so they can visit it!

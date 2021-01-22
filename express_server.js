@@ -59,6 +59,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // SERVER REQUESTS *********************************
 
+// ROOT redirects to login
 app.get("/", (req, res) => {
   res.redirect("/login");
 });
