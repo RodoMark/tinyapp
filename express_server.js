@@ -214,7 +214,7 @@ app.post("/urls/", (req, res) => {
 });
 
 // FIND url
-app.get("/urls/:shortURL", (req, res) => {
+app.get("/u/:shortURL", (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL]["longURL"],
@@ -225,7 +225,7 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 // DELETE existing URL
-app.delete("/urls/:shortURL", (req, res) => {
+app.delete("/u/:shortURL", (req, res) => {
   const user_id = req.session.user.id;
 
   const userInfo = req.session.user;
@@ -241,7 +241,7 @@ app.delete("/urls/:shortURL", (req, res) => {
 });
 
 // UPDATE existing URL
-app.put("/urls/:shortURL", (req, res) => {
+app.put("/u/:shortURL", (req, res) => {
   const user_id = req.session.user.id;
   const userInfo = req.session.user;
 

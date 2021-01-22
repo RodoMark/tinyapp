@@ -113,7 +113,6 @@ module.exports = {
   emailExists,
   fetchUser,
   fetchUserByEmail,
-  fetchUserByID,
   generateLinkID,
   generateUserID,
   passwordMatch,
