@@ -2,9 +2,9 @@ const { userDatabase, urlDatabase } = require("./express_server.js");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 
+// EMAIL CHECKER FUNCTION
 const emailExists = function (userDatabase, email) {
   for (const user in userDatabase) {
-    // proper email
     if (userDatabase[user]["email"] === email) {
       return true;
     }
@@ -12,6 +12,7 @@ const emailExists = function (userDatabase, email) {
   return false;
 };
 
+// PASSWORD CHECKER FUNCTION
 const passwordMatch = function (incomingPassword, requestedPassword) {
   if (bcrypt.compareSync(incomingPassword, requestedPassword)) {
     return true;
@@ -20,6 +21,7 @@ const passwordMatch = function (incomingPassword, requestedPassword) {
   }
 };
 
+// USER FETCHER FUNCTION
 const fetchUser = function (userDatabase, uniqueID) {
   if (userDatabase[uniqueID]) {
     return userDatabase[uniqueID];
@@ -28,6 +30,7 @@ const fetchUser = function (userDatabase, uniqueID) {
   }
 };
 
+// USER FETCH BY EMAIL FUNCTION
 const fetchUserByEmail = function (userDatabase, email) {
   for (const user_id in userDatabase) {
     if (userDatabase[user_id]["email"] === email) {
@@ -40,18 +43,7 @@ const fetchUserByEmail = function (userDatabase, email) {
   return false;
 };
 
-const fetchUserByID = function (userDatabase, userID) {
-  for (const user_id in userDatabase) {
-    if (user_id === userID) {
-      //proper email
-      return userDatabase[user_id];
-    }
-  }
-
-  // email doesn't exist
-  return false;
-};
-
+// URL BASED ON USER FUNCTION
 const urlsForUser = function (urlDatabase, uniqueID) {
   const urlSubset = {};
 
@@ -66,6 +58,7 @@ const urlsForUser = function (urlDatabase, uniqueID) {
   return urlSubset;
 };
 
+// REGISTRATION ERROR FINDER FUNCTION
 const registrationHelper = function (userDatabase, details) {
   if (emailExists(userDatabase, details.incomingEmail)) {
     return 1;
@@ -108,6 +101,7 @@ const addNewUser = function (details) {
   return newUser;
 };
 
+// BAD REQUEST REJECTION FUNCTION
 const rejectRequest = function (res) {
   return res.status(401).json({
     message: "Unauthorized Request",
