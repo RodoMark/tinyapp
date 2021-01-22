@@ -1,13 +1,12 @@
 "use strict";
 
-// DRIVER CODE FOR USER FEATURES*********************************
+// DRIVER CODE FOR USER FEATURES *********************************
 const {
   addNewUser,
   emailExists,
   fetchUser,
   fetchUserByEmail,
   generateLinkID,
-  generateUserID,
   passwordMatch,
   registrationHelper,
   rejectRequest,
@@ -58,7 +57,7 @@ app.use(
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// SERVER REQUESTS*********************************
+// SERVER REQUESTS *********************************
 
 app.get("/", (req, res) => {
   res.redirect("/login");
@@ -66,6 +65,7 @@ app.get("/", (req, res) => {
 
 // INDEX of all urls
 app.get("/urls", (req, res) => {
+  // They shouldn't see links if they're not logged in
   if (!req.session.user) {
     res.redirect("/login");
   }
@@ -78,6 +78,7 @@ app.get("/urls", (req, res) => {
       urls: urlsForUser(urlDatabase, req.session.user.id),
     };
     res.render("urls_index", templateVars);
+    // Redirects to login but with a helpful message
   } else {
     templateVars.loginRequiredMessage = "Please log in to see your links";
     res.render("login", templateVars);
@@ -92,8 +93,10 @@ app.get("/login", (req, res) => {
     usernameMessage: "",
   };
 
+  // Check if the user has authentication
   if (req.session.user) {
     res.redirect("/urls");
+    // This check if they've been redirected from another page
   } else if (req.headers["sec-fetch-site"] === "same-origin") {
     templateVars.loginRequiredMessage = "Please log in to see your links";
     res.render("login", templateVars);
@@ -145,12 +148,14 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
+  // User details for registration
   const details = {
     incomingName: req.body.name,
     incomingEmail: req.body.email,
     incomingPassword: req.body.password,
   };
 
+  // Errors to send in case registration goes wrong
   const errorMessages = {
     usernameMessage: `User with the email ${details.incomingEmail} already exists. Please enter a different one.`,
     emptyMessage: `One or more fields are empty`,
@@ -158,6 +163,7 @@ app.post("/register", (req, res) => {
     passwordMessage: "Password must be minimum of 6 characters.",
   };
 
+  // These error numbers are part of the registrationHelper function
   let regCheck = registrationHelper(userDatabase, details);
 
   if (regCheck !== 0) {
@@ -248,6 +254,7 @@ app.put("/urls/:shortURL", (req, res) => {
   }
 });
 
+// LISTENER
 app.listen(PORT, () => {
   console.log(`TinyApp listening on port ${PORT}!`);
 });
