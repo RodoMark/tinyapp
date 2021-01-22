@@ -6,6 +6,7 @@ const {
   emailExists,
   fetchUser,
   fetchUserByEmail,
+  fetchUserByID,
   generateLinkID,
   generateUserID,
   passwordMatch,
@@ -76,6 +77,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // SERVER REQUESTS*********************************
 
+app.get("/", (req, res) => {
+  res.redirect("/register");
+});
+
 app.get("/urldb", (req, res) => {
   res.send(JSON.stringify(urlDatabase));
 });
@@ -86,18 +91,17 @@ app.get("/users", (req, res) => {
 
 // INDEX of all urls
 app.get("/urls", (req, res) => {
-  const user_id = req.session.user_id;
-  const userInfo = fetchUser(userDatabase, user_id);
+  if (!req.session.user) {
+    res.redirect("/login");
+  }
 
-  const templateVars = {
-    urls: {},
-    loginRequiredMessage: "",
-    userInfo,
-  };
+  const templateVars = {};
 
-  if (user_id) {
-    templateVars.userInfo = userInfo;
-    templateVars.urls = urlsForUser(urlDatabase, user_id);
+  if (req.session.user) {
+    const templateVars = {
+      userInfo: req.session.user,
+      urls: urlsForUser(urlDatabase, req.session.user.id),
+    };
     res.render("urls_index", templateVars);
   } else {
     templateVars.loginRequiredMessage = "Please log in to see your links";
@@ -113,8 +117,8 @@ app.get("/login", (req, res) => {
     usernameMessage: "",
   };
 
-  if (req.session.user_id) {
-    console.log(`${req.session.user_id} already logged in. Redirecting.`);
+  if (req.session.user) {
+    console.log(`${req.session.user} already logged in. Redirecting.`);
     res.redirect("/urls");
   } else if (req.headers["sec-fetch-site"] === "same-origin") {
     templateVars.loginRequiredMessage = "Please log in to see your links";
@@ -128,11 +132,7 @@ app.get("/login", (req, res) => {
 // LOG IN to the site
 app.post("/login", (req, res) => {
   const incomingEmail = req.body.email;
-  console.log("incomingEmail: ", incomingEmail);
   const incomingPassword = req.body.password;
-  console.log("incomingPassword: ", incomingPassword);
-  console.log("user", userDatabase[incomingEmail]);
-  console.log("fetchedUser: ", fetchUser(userDatabase, incomingEmail));
 
   if (emailExists(userDatabase, incomingEmail)) {
     // email for user exists
@@ -143,8 +143,7 @@ app.post("/login", (req, res) => {
       console.log(`${incomingEmail} exists and password is matching.`);
 
       // this is the authentication that's passed to the user
-      req.session.user_id = fetchedUser["uniqueID"];
-      console.log("req.session.user_id", req.session.user_id);
+      req.session.user = fetchedUser["uniqueID"];
       res.redirect("/urls");
     } else {
       res.status(400);
@@ -202,27 +201,28 @@ app.post("/register", (req, res) => {
       res.send(errorMessage.passwordMessage);
     }
   } else {
-    const generatedUser = addNewUser(details);
+    req.session.user = addNewUser(details);
+    const user = req.session.user;
+    userDatabase[user.id] = user;
 
-    userDatabase[generatedUser.uniqueID] = generatedUser;
-    console.log(addNewUser(details));
     console.log(
-      `New user registered:\n ${userDatabase[generatedUser.uniqueID]}`
+      `New user registered:\n ${JSON.stringify(userDatabase[user.id])}`
     );
-    res.redirect("/urls");
+    res.redirect("/login");
   }
 });
 
 // ADD new url
 app.get("/urls/new", (req, res) => {
-  const user_id = req.session.user_id;
+  const user_id = req.session.user.id;
+  console.log(req.session.user);
   const userInfo = fetchUser(userDatabase, user_id);
 
   const templateVars = {
     userInfo,
   };
 
-  if (req.session.user_id) {
+  if (req.session.user) {
     res.render("urls_new", templateVars);
   } else {
     res.redirect("/login");
@@ -234,7 +234,7 @@ app.post("/urls/", (req, res) => {
   const newKey = generateLinkID();
   urlDatabase[newKey] = {
     longURL: req.body.longURL,
-    uniqueID: req.session["user_id"],
+    uniqueID: req.session.user.id,
   };
 
   console.log(`New URL created ${JSON.stringify(urlDatabase[newKey])}`);
@@ -244,13 +244,10 @@ app.post("/urls/", (req, res) => {
 
 // FIND url
 app.get("/urls/:shortURL", (req, res) => {
-  const user_id = req.session["user_id"];
-  const userInfo = fetchUser(userDatabase, user_id);
-
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL]["longURL"],
-    userInfo,
+    userInfo: { name: "" },
   };
 
   res.render("urls_show", templateVars);
@@ -258,9 +255,9 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // DELETE existing URL
 app.post("/urls/:shortURL/delete", (req, res) => {
-  const user_id = req.session["user_id"];
+  const user_id = req.session.user.id;
 
-  const userInfo = fetchUser(userDatabase, user_id);
+  const userInfo = req.session.user;
 
   const requestKey = req.params.shortURL;
   console.log("REQUEST KEY: ", req.params.shortURL);
@@ -275,15 +272,12 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 // UPDATE existing URL
 app.post("/urls/:shortURL/update", (req, res) => {
-  const user_id = req.session["user_id"];
-  const userInfo = fetchUser(userDatabase, user_id);
+  const user_id = req.session.user.id;
+  const userInfo = req.session.user;
 
   const requestKey = req.params.shortURL;
 
-  if (
-    userInfo &&
-    userDatabase[user_id] === urlDatabase[requestKey]["uniqueID"]
-  ) {
+  if (userInfo && user_id === urlDatabase[requestKey]["uniqueID"]) {
     urlDatabase[req.params.shortURL]["longURL"] = req.body.longURL;
     res.redirect("/urls");
   } else {

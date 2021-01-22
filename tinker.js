@@ -18,4 +18,21 @@ const urlDatabase = {
   c3xVn3: { longURL: "http://www.google.com", uniqueID: "u0001" },
 };
 
-console.log(urlsForUser(urlDatabase, "u0000"));
+const userDatabase = {
+  u0000: {
+    name: "example",
+    email: "example@mail.com",
+    password: "password",
+    uniqueID: "u0000",
+  },
+};
+
+const fetchUser = function (userDatabase, uniqueID) {
+  if (userDatabase[uniqueID]["uniqueID"] === uniqueID) {
+    return userDatabase[uniqueID];
+  } else {
+    return false;
+  }
+};
+
+console.log(urlsForUser(urlDatabase, "u0001"));

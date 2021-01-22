@@ -3,9 +3,9 @@ const bcrypt = require("bcrypt");
 const saltRounds = 10;
 
 const emailExists = function (userDatabase, email) {
-  for (const key in userDatabase) {
+  for (const user in userDatabase) {
     // proper email
-    if (userDatabase[key]["email"] === email) {
+    if (userDatabase[user]["email"] === email) {
       return true;
     }
   }
@@ -24,13 +24,25 @@ const fetchUser = function (userDatabase, uniqueID) {
   if (userDatabase[uniqueID]) {
     return userDatabase[uniqueID];
   } else {
-    return false;
+    return {};
   }
 };
 
 const fetchUserByEmail = function (userDatabase, email) {
   for (const user_id in userDatabase) {
     if (userDatabase[user_id]["email"] === email) {
+      //proper email
+      return userDatabase[user_id];
+    }
+  }
+
+  // email doesn't exist
+  return false;
+};
+
+const fetchUserByID = function (userDatabase, userID) {
+  for (const user_id in userDatabase) {
+    if (user_id === userID) {
       //proper email
       return userDatabase[user_id];
     }
@@ -84,14 +96,13 @@ const generateUserID = function () {
 
 // NEW USER FUNCTION
 const addNewUser = function (details) {
-  console.log(details.incomingName);
   const newID = generateUserID();
 
   newUser = {
     name: details.incomingName,
     email: details.incomingEmail,
     password: bcrypt.hashSync(details.incomingPassword, saltRounds),
-    uniqueID: newID,
+    id: newID,
   };
 
   return newUser;
@@ -108,6 +119,7 @@ module.exports = {
   emailExists,
   fetchUser,
   fetchUserByEmail,
+  fetchUserByID,
   generateLinkID,
   generateUserID,
   passwordMatch,
