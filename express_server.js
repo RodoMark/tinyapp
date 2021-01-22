@@ -76,6 +76,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // SERVER REQUESTS*********************************
 
+app.get("/urldb", (req, res) => {
+  res.send(JSON.stringify(urlDatabase));
+});
+
 app.get("/users", (req, res) => {
   res.send(JSON.stringify(userDatabase));
 });
@@ -93,7 +97,7 @@ app.get("/urls", (req, res) => {
 
   if (user_id) {
     templateVars.userInfo = userInfo;
-    templateVars.urls = urlsForUser(urlDatabase, user_id["uniqueID"]);
+    templateVars.urls = urlsForUser(urlDatabase, user_id);
     res.render("urls_index", templateVars);
   } else {
     templateVars.loginRequiredMessage = "Please log in to see your links";
@@ -230,7 +234,7 @@ app.post("/urls/", (req, res) => {
   const newKey = generateLinkID();
   urlDatabase[newKey] = {
     longURL: req.body.longURL,
-    uniqueID: req.session["user_id"]["uniqueID"],
+    uniqueID: req.session["user_id"],
   };
 
   console.log(`New URL created ${JSON.stringify(urlDatabase[newKey])}`);
@@ -240,7 +244,7 @@ app.post("/urls/", (req, res) => {
 
 // FIND url
 app.get("/urls/:shortURL", (req, res) => {
-  const user_id = req.session.user_id;
+  const user_id = req.session["user_id"];
   const userInfo = fetchUser(userDatabase, user_id);
 
   const templateVars = {
@@ -254,12 +258,14 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // DELETE existing URL
 app.post("/urls/:shortURL/delete", (req, res) => {
-  const user_id = req.session.user_id;
+  const user_id = req.session["user_id"];
+
   const userInfo = fetchUser(userDatabase, user_id);
 
   const requestKey = req.params.shortURL;
+  console.log("REQUEST KEY: ", req.params.shortURL);
 
-  if (userInfo["uniqueID"] === urlDatabase[requestKey]["uniqueID"]) {
+  if (userInfo["uniqueID"] === urlDatabase[requestKey][user_id]) {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");
   } else {
@@ -269,14 +275,14 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 // UPDATE existing URL
 app.post("/urls/:shortURL/update", (req, res) => {
-  const user_id = req.session.user_id;
+  const user_id = req.session["user_id"];
   const userInfo = fetchUser(userDatabase, user_id);
 
   const requestKey = req.params.shortURL;
 
   if (
     userInfo &&
-    userInfo["uniqueID"] === urlDatabase[requestKey]["uniqueID"]
+    userDatabase[user_id] === urlDatabase[requestKey]["uniqueID"]
   ) {
     urlDatabase[req.params.shortURL]["longURL"] = req.body.longURL;
     res.redirect("/urls");
