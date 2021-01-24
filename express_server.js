@@ -24,8 +24,13 @@ const userDatabase = {
 
 const urlDatabase = {
   exampl: {
-    longURL: "www.example.com",
+    longURL: "www.google.com",
     uniqueID: "u0000",
+  },
+
+  cd52l: {
+    longURL: "www.example.com",
+    uniqueID: "u0001",
   },
 };
 
@@ -198,14 +203,36 @@ app.post("/urls/", (req, res) => {
     uniqueID: req.session.user.id,
   };
 
-  res.redirect(`/u/${newKey}`);
+  res.redirect("/urls");
 });
 
 // FIND url
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL]["longURL"];
 
-  res.redirect(`/${longURL}`);
+  res.redirect(longURL);
+});
+
+app.post("/u/:shortURL/", (req, res) => {
+  const shortURL = req.params.shortURL;
+  const longURL = urlDatabase[shortURL]["longURL"];
+
+  if (req.session.user) {
+    if (req.session.user.id === urlDatabase[shortURL]["uniqueID"]) {
+      const user_id = req.session.user.id;
+      const userInfo = fetchUser(userDatabase, user_id);
+
+      const templateVars = {
+        userInfo,
+        shortURL,
+        longURL,
+      };
+
+      res.render("urls_show", templateVars);
+    }
+  } else {
+    rejectRequest(res);
+  }
 });
 
 // DELETE existing URL
