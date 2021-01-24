@@ -198,7 +198,7 @@ app.post("/urls/", (req, res) => {
     uniqueID: req.session.user.id,
   };
 
-  res.redirect("/urls");
+  res.redirect(`/u/${newKey}`);
 });
 
 // FIND url
