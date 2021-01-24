@@ -66,11 +66,6 @@ app.get("/", (req, res) => {
 
 // INDEX of all urls
 app.get("/urls", (req, res) => {
-  // They shouldn't see links if they're not logged in
-  if (!req.session.user) {
-    res.redirect("/login");
-  }
-
   const templateVars = {};
 
   if (req.session.user) {
@@ -79,7 +74,6 @@ app.get("/urls", (req, res) => {
       urls: urlsForUser(urlDatabase, req.session.user.id),
     };
     res.render("urls_index", templateVars);
-    // Redirects to login but with a helpful message
   } else {
     res.status(400);
     res.send("Please log in to see your links");
@@ -89,20 +83,14 @@ app.get("/urls", (req, res) => {
 // LOGIN page
 app.get("/login", (req, res) => {
   const templateVars = {
-    loginRequiredMessage: "",
-    userInfo: {},
+    userInfo: { name: "" },
     usernameMessage: "",
   };
 
   // Check if the user has authentication
   if (req.session.user) {
     res.redirect("/urls");
-    // This check if they've been redirected from another page
-  } else if (req.headers["sec-fetch-site"] === "same-origin") {
-    templateVars.loginRequiredMessage = "Please log in to see your links";
-    res.render("login", templateVars);
   } else {
-    templateVars.loginRequiredmessage = "";
     res.render("login", templateVars);
   }
 });
