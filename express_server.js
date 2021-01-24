@@ -201,7 +201,7 @@ app.get("/u/:shortURL", (req, res) => {
     res.redirect(longURL);
   } else {
     res.status(400);
-    res.render();
+    res.send("ShortURL with that ID does not exist");
   }
 });
 
