@@ -126,7 +126,6 @@ app.post("/login", (req, res) => {
     // email cannot be found
     res.status(400);
     res.send(`User does not exist`);
-    res.redirect("/login");
   }
 });
 
@@ -202,7 +201,7 @@ app.get("/u/:shortURL", (req, res) => {
     res.redirect(longURL);
   } else {
     res.status(400);
-    res.send("ShortURL with that ID does not exist");
+    res.render();
   }
 });
 
@@ -257,14 +256,15 @@ app.delete("/u/:shortURL", (req, res) => {
 
 // UPDATE existing URL
 app.put("/u/:shortURL", (req, res) => {
-  const user_id = req.session.user.id;
-  const userInfo = req.session.user;
+  if (req.session.user) {
+    const user_id = req.session.user.id;
+    const userInfo = req.session.user;
+    const requestKey = req.params.shortURL;
 
-  const requestKey = req.params.shortURL;
-
-  if (userInfo && user_id === urlDatabase[requestKey]["uniqueID"]) {
-    urlDatabase[req.params.shortURL]["longURL"] = req.body.longURL;
-    res.redirect("/urls");
+    if (userInfo && user_id === urlDatabase[requestKey]["uniqueID"]) {
+      urlDatabase[req.params.shortURL]["longURL"] = req.body.longURL;
+      res.redirect("/urls");
+    }
   } else {
     rejectRequest(res);
   }

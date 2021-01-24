@@ -8,6 +8,6 @@ POST /login - if email and password params match an existing user: sets a cookie
 
 POST /urls if user is logged in: redirects to /urls/:id, where :id matches the ID of the newly saved URL -> user is redirected to /urls instead ✅
 
-POST /urls if user is not logged in: (Minor) returns HTML with a relevant error message -> any user is able to post to this url even if they are not logged in
+POST /urls if user is not logged in: (Minor) returns HTML with a relevant error message -> any user is able to post to this url even if they are not logged in ✅
 
 GET /u/:id if URL for the given ID exists: redirects to the corresponding long URL -> redirects user to /u/:id instead of the actual url ✅
