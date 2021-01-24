@@ -176,17 +176,17 @@ app.post("/register", (req, res) => {
 
 // ADD new url
 app.get("/urls/new", (req, res) => {
-  const user_id = req.session.user.id;
-  const userInfo = fetchUser(userDatabase, user_id);
-
-  const templateVars = {
-    userInfo,
-  };
-
-  if (req.session.user) {
-    res.render("urls_new", templateVars);
-  } else {
+  if (req.session.user === undefined || !req.session.user) {
     res.redirect("/login");
+  } else {
+    const user_id = req.session.user.id;
+    const userInfo = fetchUser(userDatabase, user_id);
+
+    const templateVars = {
+      userInfo,
+    };
+
+    res.render("urls_new", templateVars);
   }
 });
 
@@ -203,13 +203,9 @@ app.post("/urls/", (req, res) => {
 
 // FIND url
 app.get("/u/:shortURL", (req, res) => {
-  const templateVars = {
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL]["longURL"],
-    userInfo: { name: "" },
-  };
+  const longURL = urlDatabase[req.params.shortURL]["longURL"];
 
-  res.render("urls_show", templateVars);
+  res.redirect(`/${longURL}`);
 });
 
 // DELETE existing URL
