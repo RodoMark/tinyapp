@@ -149,28 +149,11 @@ app.post("/register", (req, res) => {
     incomingPassword: req.body.password,
   };
 
-  // Errors to send in case registration goes wrong
-  const errorMessages = {
-    usernameMessage: `User with the email ${details.incomingEmail} already exists. Please enter a different one.`,
-    emptyMessage: `One or more fields are empty`,
-    emailMessage: "Improperly formatted email address.",
-    passwordMessage: "Password must be minimum of 6 characters.",
-  };
+  let regFail = registrationHelper(userDatabase, details);
 
-  // These error numbers are part of the registrationHelper function
-  let regCheck = registrationHelper(userDatabase, details);
-
-  if (regCheck !== 0) {
+  if (regFail) {
     res.status(400);
-    if (regCheck === 1) {
-      res.send(errorMessages.usernameMessage);
-    } else if (regCheck === 2) {
-      res.send(errorMessages.emptyMessage);
-    } else if (regCheck === 3) {
-      res.send(errorMessages.emailMessage);
-    } else if (regCheck === 4) {
-      res.send(errorMessage.passwordMessage);
-    }
+    res.send(regFail);
   } else {
     req.session.user = addNewUser(details);
     const user = req.session.user;

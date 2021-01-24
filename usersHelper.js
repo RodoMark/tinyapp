@@ -60,21 +60,20 @@ const urlsForUser = function (urlDatabase, uniqueID) {
 
 // REGISTRATION ERROR FINDER FUNCTION
 const registrationHelper = function (userDatabase, details) {
+  let message = false;
+
   if (emailExists(userDatabase, details.incomingEmail)) {
-    return 1;
+    message = `User with the email ${details.incomingEmail} already exists. Please enter a different one.`;
   } else if (
-    details.incomingName.length < 1 ||
     details.incomingEmail.length < 1 ||
     details.incomingName.length < 1 === 2
   ) {
-    return 2;
+    message = `One or more fields are empty`;
   } else if (!details.incomingEmail.includes("@")) {
-    return 3;
-  } else if (details.incomingPassword.length < 6) {
-    return 4;
-  } else {
-    return 0;
+    message = "Improperly formatted email address.";
   }
+
+  return message;
 };
 
 // RANDOM LINKID FUNCTION
