@@ -81,8 +81,8 @@ app.get("/urls", (req, res) => {
     res.render("urls_index", templateVars);
     // Redirects to login but with a helpful message
   } else {
-    templateVars.loginRequiredMessage = "Please log in to see your links";
-    res.render("login", templateVars);
+    res.status(400);
+    res.send("Please log in to see your links");
   }
 });
 
