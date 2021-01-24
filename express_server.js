@@ -64,6 +64,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // SERVER REQUESTS *********************************
 
+app.get("/users", (req, res) => {
+  res.send(JSON.stringify(userDatabase));
+});
+
 // ROOT redirects to login
 app.get("/", (req, res) => {
   res.redirect("/login");
@@ -142,9 +146,10 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
+  let incomingName = req.body.name.length > 0 ? req.body.name : " ";
   // User details for registration
   const details = {
-    incomingName: req.body.name,
+    incomingName,
     incomingEmail: req.body.email,
     incomingPassword: req.body.password,
   };
