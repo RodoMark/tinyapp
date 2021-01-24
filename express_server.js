@@ -208,46 +208,62 @@ app.post("/urls/", (req, res) => {
 
 // FIND url
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL]["longURL"];
+  if (urlDatabase[req.params.shortURL]) {
+    const longURL = urlDatabase[req.params.shortURL]["longURL"];
 
-  res.redirect(longURL);
+    res.redirect(longURL);
+  } else {
+    res.status(400);
+    res.send("ShortURL with that ID does not exist");
+  }
 });
 
 app.post("/u/:shortURL/", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL]["longURL"];
+  if (urlDatabase[shortURL]) {
+    if (req.session.user) {
+      if (req.session.user.id === urlDatabase[shortURL]["uniqueID"]) {
+        const user_id = req.session.user.id;
+        const userInfo = fetchUser(userDatabase, user_id);
 
-  if (req.session.user) {
-    if (req.session.user.id === urlDatabase[shortURL]["uniqueID"]) {
-      const user_id = req.session.user.id;
-      const userInfo = fetchUser(userDatabase, user_id);
+        const templateVars = {
+          userInfo,
+          shortURL,
+          longURL,
+        };
 
-      const templateVars = {
-        userInfo,
-        shortURL,
-        longURL,
-      };
-
-      res.render("urls_show", templateVars);
+        res.render("urls_show", templateVars);
+      } else {
+        rejectRequest(res);
+      }
     }
   } else {
-    rejectRequest(res);
+    res.status(400);
+    res.send("ShortURL with that ID does not exist");
   }
 });
 
 // DELETE existing URL
 app.delete("/u/:shortURL", (req, res) => {
-  const user_id = req.session.user.id;
+  const shortURL = req.params.shortURL;
 
-  const userInfo = req.session.user;
+  if (urlDatabase[shortURL]) {
+    if (req.session.user) {
+      const user_id = req.session.user.id;
+      const userInfo = req.session.user;
+      const requestKey = req.params.shortURL;
 
-  const requestKey = req.params.shortURL;
-
-  if (userInfo["uniqueID"] === urlDatabase[requestKey][user_id]) {
-    delete urlDatabase[req.params.shortURL];
-    res.redirect("/urls");
+      if (userInfo["uniqueID"] === urlDatabase[requestKey][user_id]) {
+        delete urlDatabase[req.params.shortURL];
+        res.redirect("/urls");
+      } else {
+        rejectRequest(res);
+      }
+    }
   } else {
-    rejectRequest(res);
+    res.status(400);
+    res.send("ShortURL with that ID does not exist");
   }
 });
 
