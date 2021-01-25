@@ -112,7 +112,6 @@ app.post("/login", (req, res) => {
     const requestedPassword = fetchedUser.password;
 
     if (passwordMatch(incomingPassword, requestedPassword)) {
-      console.log("fetchedUser", fetchedUser);
       // this is the authentication that's passed to the user
       req.session.user = fetchedUser;
       res.redirect("/urls");
@@ -143,7 +142,7 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  let incomingName = req.body.name.length > 0 ? req.body.name : "anonymous";
+  let incomingName = req.body.name.length > 0 ? req.body.name : "Anonymous";
   // User details for registration
   const details = {
     incomingName,
