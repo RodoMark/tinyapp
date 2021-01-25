@@ -97,10 +97,9 @@ app.get("/login", (req, res) => {
   };
 
   // Check if the user has authentication
-  if (req.session.user) {
-    res.redirect("/urls");
+  if (!req.session.user) {
   } else {
-    res.render("login", templateVars);
+    res.redirect("/urls");
   }
 });
 
@@ -131,7 +130,7 @@ app.post("/login", (req, res) => {
 
 // LOGOUT
 app.post("/logout", (req, res) => {
-  req.session = null;
+  req.session.user = null;
   res.redirect("/login");
 });
 
