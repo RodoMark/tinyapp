@@ -6,7 +6,7 @@ const {
   emailExists,
   fetchUser,
   fetchUserByEmail,
-  generateLinkID,
+  generateRandomID,
   passwordMatch,
   registrationHelper,
   rejectRequest,
@@ -185,7 +185,7 @@ app.get("/urls/new", (req, res) => {
 
 // GENERATE new url
 app.post("/urls/", (req, res) => {
-  const newKey = generateLinkID();
+  const newKey = generateRandomID();
   urlDatabase[newKey] = {
     longURL: req.body.longURL,
     uniqueID: req.session.user.id,

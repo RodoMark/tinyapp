@@ -77,24 +77,19 @@ const registrationHelper = function (userDatabase, details) {
 };
 
 // RANDOM LINKID FUNCTION
-const generateLinkID = function () {
+const generateRandomID = function () {
   return (+new Date()).toString(36).slice(-6);
-};
-
-// RANDOM USERID FUNCTION
-const generateUserID = function () {
-  return "u" + (+new Date()).toString(36).slice(-4);
 };
 
 // NEW USER FUNCTION
 const addNewUser = function (details) {
-  const newID = generateUserID();
+  const newID = generateRandomID();
 
   newUser = {
     name: details.incomingName,
     email: details.incomingEmail,
     password: bcrypt.hashSync(details.incomingPassword, saltRounds),
-    id: newID,
+    id: `u${newID.slice(-4)}`,
   };
 
   return newUser;
@@ -112,8 +107,7 @@ module.exports = {
   emailExists,
   fetchUser,
   fetchUserByEmail,
-  generateLinkID,
-  generateUserID,
+  generateRandomID,
   passwordMatch,
   registrationHelper,
   urlsForUser,
