@@ -133,11 +133,15 @@ app.post("/logout", (req, res) => {
 
 // REGISTER new account
 app.get("/register", (req, res) => {
-  const templateVars = {
-    userInfo: {},
-  };
+  if (req.session.user) {
+    res.redirect("/urls");
+  } else {
+    const templateVars = {
+      userInfo: {},
+    };
 
-  res.render("register", templateVars);
+    res.render("register", templateVars);
+  }
 });
 
 app.post("/register", (req, res) => {
