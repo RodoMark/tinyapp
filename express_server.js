@@ -11,7 +11,7 @@ const {
   registrationHelper,
   rejectRequest,
   urlsForUser,
-} = require("./usersHelper");
+} = require("./index/usersHelper");
 
 const userDatabase = {
   sample: {
@@ -132,7 +132,7 @@ app.post("/login", (req, res) => {
 
 // LOGOUT
 app.post("/logout", (req, res) => {
-  req.session.user = null;
+  req.session = null;
   res.redirect("/login");
 });
 
