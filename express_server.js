@@ -91,13 +91,14 @@ app.get("/urls", (req, res) => {
 
 // LOGIN page
 app.get("/login", (req, res) => {
-  const templateVars = {
-    userInfo: { name: "" },
-    usernameMessage: "",
-  };
-
   // Check if the user has authentication
   if (!req.session.user) {
+    const templateVars = {
+      userInfo: { name: "" },
+      usernameMessage: "",
+    };
+
+    res.render("login", templateVars);
   } else {
     res.redirect("/urls");
   }
@@ -114,8 +115,9 @@ app.post("/login", (req, res) => {
     const requestedPassword = fetchedUser.password;
 
     if (passwordMatch(incomingPassword, requestedPassword)) {
+      console.log("user logging in:", fetchedUser["uniqueID"]);
       // this is the authentication that's passed to the user
-      req.session.user = fetchedUser["uniqueID"];
+      req.session.user = fetchedUser["id"];
       res.redirect("/urls");
     } else {
       res.status(400);
