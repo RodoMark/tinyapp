@@ -9,7 +9,6 @@ const {
   generateRandomID,
   passwordMatch,
   registrationHelper,
-  rejectRequest,
   urlsForUser,
 } = require("./index/usersHelper");
 
@@ -219,7 +218,9 @@ app.post("/u/:shortURL/", (req, res) => {
 
         res.render("urls_show", templateVars);
       } else {
-        rejectRequest(res);
+        res.status(401).json({
+          message: "Unauthorized Request",
+        });
       }
     }
   } else {
@@ -242,7 +243,9 @@ app.delete("/u/:shortURL", (req, res) => {
         delete urlDatabase[req.params.shortURL];
         res.redirect("/urls");
       } else {
-        rejectRequest(res);
+        res.status(401).json({
+          message: "Unauthorized Request",
+        });
       }
     }
   } else {
@@ -263,7 +266,9 @@ app.put("/u/:shortURL", (req, res) => {
       res.redirect("/urls");
     }
   } else {
-    rejectRequest(res);
+    res.status(401).json({
+      message: "Unauthorized Request",
+    });
   }
 });
 

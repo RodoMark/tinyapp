@@ -94,13 +94,6 @@ const addNewUser = function (details) {
   return newUser;
 };
 
-// BAD REQUEST REJECTION FUNCTION
-const rejectRequest = function (res) {
-  return res.status(401).json({
-    message: "Unauthorized Request",
-  });
-};
-
 module.exports = {
   addNewUser,
   emailExists,
@@ -110,5 +103,4 @@ module.exports = {
   passwordMatch,
   registrationHelper,
   urlsForUser,
-  rejectRequest,
 };
