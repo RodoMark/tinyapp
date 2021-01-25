@@ -167,8 +167,8 @@ app.get("/urls/new", (req, res) => {
   if (req.session.user === undefined || !req.session.user) {
     res.redirect("/login");
   } else {
-    const user_id = req.session.user.id;
-    const userInfo = fetchUser(userDatabase, user_id);
+    const userID = req.session.user.id;
+    const userInfo = fetchUser(userDatabase, userID);
 
     const templateVars = {
       userInfo,
@@ -207,8 +207,8 @@ app.post("/u/:shortURL/", (req, res) => {
   if (urlDatabase[shortURL]) {
     if (req.session.user) {
       if (req.session.user.id === urlDatabase[shortURL]["uniqueID"]) {
-        const user_id = req.session.user.id;
-        const userInfo = fetchUser(userDatabase, user_id);
+        const userID = req.session.user.id;
+        const userInfo = fetchUser(userDatabase, userID);
 
         const templateVars = {
           userInfo,
@@ -235,11 +235,11 @@ app.delete("/u/:shortURL", (req, res) => {
 
   if (urlDatabase[shortURL]) {
     if (req.session.user) {
-      const user_id = req.session.user.id;
+      const userID = req.session.user.id;
       const userInfo = req.session.user;
       const requestKey = req.params.shortURL;
 
-      if (userInfo["uniqueID"] === urlDatabase[requestKey][user_id]) {
+      if (userInfo["uniqueID"] === urlDatabase[requestKey][userID]) {
         delete urlDatabase[req.params.shortURL];
         res.redirect("/urls");
       } else {
@@ -257,11 +257,11 @@ app.delete("/u/:shortURL", (req, res) => {
 // UPDATE existing URL
 app.put("/u/:shortURL", (req, res) => {
   if (req.session.user) {
-    const user_id = req.session.user.id;
+    const userID = req.session.user.id;
     const userInfo = req.session.user;
     const requestKey = req.params.shortURL;
 
-    if (userInfo && user_id === urlDatabase[requestKey]["uniqueID"]) {
+    if (userInfo && userID === urlDatabase[requestKey]["uniqueID"]) {
       urlDatabase[req.params.shortURL]["longURL"] = req.body.longURL;
       res.redirect("/urls");
     }

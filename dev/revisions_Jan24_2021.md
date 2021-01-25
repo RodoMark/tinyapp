@@ -16,4 +16,6 @@ usersHelpers.js can be located in a subfolder as we want to only keep key files 
 
 usersHelpers.js 62 - it is more readable and maintainable to return a string corresponding to the error type rather than an integer. In the latter case you are making up your own corresponding code which no one except yourself will be able to understand at a glance vs a string that says "email length error" ✅
 
-no need to have a separate rejectRequest helper function, these rejections can be called directly in the route
+no need to have a separate rejectRequest helper function, these rejections can be called directly in the route ✅
+
+generateLinkId & generateUserID -> you could just use one of these for both use cases ✅

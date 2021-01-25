@@ -31,10 +31,10 @@ const fetchUser = function (userDatabase, uniqueID) {
 
 // USER FETCH BY EMAIL FUNCTION
 const fetchUserByEmail = function (userDatabase, email) {
-  for (const user_id in userDatabase) {
-    if (userDatabase[user_id]["email"] === email) {
+  for (const userID in userDatabase) {
+    if (userDatabase[userID]["email"] === email) {
       //proper email
-      return userDatabase[user_id];
+      return userDatabase[userID];
     }
   }
 
