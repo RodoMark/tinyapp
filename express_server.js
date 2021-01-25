@@ -75,8 +75,6 @@ app.get("/", (req, res) => {
 
 // INDEX of all urls
 app.get("/urls", (req, res) => {
-  const templateVars = {};
-
   if (req.session.user) {
     const templateVars = {
       userInfo: req.session.user,
@@ -97,7 +95,6 @@ app.get("/login", (req, res) => {
       userInfo: { name: "" },
       usernameMessage: "",
     };
-
     res.render("login", templateVars);
   } else {
     res.redirect("/urls");
@@ -115,9 +112,9 @@ app.post("/login", (req, res) => {
     const requestedPassword = fetchedUser.password;
 
     if (passwordMatch(incomingPassword, requestedPassword)) {
-      console.log("user logging in:", fetchedUser["uniqueID"]);
+      console.log("fetchedUser", fetchedUser);
       // this is the authentication that's passed to the user
-      req.session.user = fetchedUser["id"];
+      req.session.user = fetchedUser;
       res.redirect("/urls");
     } else {
       res.status(400);
@@ -146,7 +143,7 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  let incomingName = req.body.name.length > 0 ? req.body.name : " ";
+  let incomingName = req.body.name.length > 0 ? req.body.name : "anonymous";
   // User details for registration
   const details = {
     incomingName,
