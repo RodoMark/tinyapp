@@ -255,7 +255,7 @@ app.delete("/urls/:shortURL", (req, res) => {
 });
 
 // UPDATE existing URL
-app.put("/u/:shortURL", (req, res) => {
+app.put("/url/:shortURL", (req, res) => {
   if (req.session.user) {
     const userID = req.session.user.id;
     const userInfo = req.session.user;
