@@ -241,14 +241,17 @@ app.delete("/urls/:shortURL", (req, res) => {
       const userInfo = req.session.user;
       const requestKey = req.params.shortURL;
 
-      if (userInfo["uniqueID"] === urlDatabase[requestKey][userID]) {
-        delete urlDatabase[req.params.shortURL];
-        res.redirect("/urls");
-      } else {
-        res.status(401).json({
-          message: "Unauthorized Request",
-        });
+        if (userInfo["uniqueID"] === urlDatabase[requestKey][userID]) {
+          delete urlDatabase[req.params.shortURL];
+          res.redirect("/urls");
+        } else {
+          res.status(401).json({
+            message: "Unauthorized Request",
+          });
       }
+    } else {
+      res.status(400)
+      res.send("User is not logged in")
     }
   } else {
     res.status(400);
@@ -266,11 +269,14 @@ app.put("/urls/:shortURL", (req, res) => {
     if (userInfo && userID === urlDatabase[requestKey]["uniqueID"]) {
       urlDatabase[req.params.shortURL]["longURL"] = req.body.longURL;
       res.redirect("/urls");
+    } else {
+      res.status(401).json({
+        message: "Unauthorized Request",
+      });
     }
   } else {
-    res.status(401).json({
-      message: "Unauthorized Request",
-    });
+    res.status(400)
+    res.write("User not logged in")
   }
 });
 
