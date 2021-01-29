@@ -35,20 +35,16 @@ const urlDatabase = {
 
 // DEPENDENCIES *****************************************
 
-// EXPRESS MODULE
 const express = require("express");
 const app = express();
 const PORT = 8080;
 app.set("view engine", "ejs");
 
-// ENCRYPTION MODULE
 const bcrypt = require("bcrypt");
 
-// METHOD OVERRIDE MODULE
 const methodOverride = require("method-override");
 app.use(methodOverride("_method"));
 
-// COOKIE SESSION MODULE
 const cookieSession = require("cookie-session");
 app.use(
   cookieSession({
@@ -57,7 +53,6 @@ app.use(
   })
 );
 
-// BODY PARSER MODULE
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -146,6 +141,7 @@ app.get("/register", (req, res) => {
 
 app.post("/register", (req, res) => {
   let incomingName = req.body.name.length > 0 ? req.body.name : req.body.email;
+  
   // User details for registration
   const details = {
     incomingName,
