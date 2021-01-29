@@ -64,8 +64,7 @@ const registrationHelper = function (userDatabase, details) {
   if (emailExists(userDatabase, details.incomingEmail)) {
     message = `User with the email ${details.incomingEmail} already exists. Please enter a different one.`;
   } else if (
-    details.incomingEmail.length < 1 ||
-    details.incomingName.length < 1 === 2
+    details.incomingEmail.length < 1
   ) {
     message = `One or more fields are empty`;
   } else if (!details.incomingEmail.includes("@")) {
@@ -85,7 +84,6 @@ const addNewUser = function (details) {
   const newID = generateRandomID();
 
   newUser = {
-    name: details.incomingName,
     email: details.incomingEmail,
     password: bcrypt.hashSync(details.incomingPassword, saltRounds),
     id: `u${newID.slice(-4)}`,
