@@ -190,7 +190,7 @@ app.post("/urls/", (req, res) => {
     uniqueID: req.session.user.id,
   };
 
-  res.redirect("/urls");
+  res.redirect(`/urls/${newKey}`);
 });
 
 // FIND url
@@ -205,7 +205,7 @@ app.get("/u/:shortURL", (req, res) => {
   }
 });
 
-app.post("/u/:shortURL/", (req, res) => {
+app.get("/urls/:shortURL/", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL]["longURL"];
   if (urlDatabase[shortURL]) {
