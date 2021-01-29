@@ -111,12 +111,12 @@ app.post("/login", (req, res) => {
       res.redirect("/urls");
     } else {
       res.status(400);
-      res.send(`${incomingEmail} exists but password mismatch.`);
+      res.send(`Login info incorrect`);
     }
   } else {
     // email cannot be found
     res.status(400);
-    res.send(`User does not exist`);
+    res.send(`Login info incorrect`);
   }
 });
 
