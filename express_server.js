@@ -145,7 +145,7 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  let incomingName = req.body.name.length > 0 ? req.body.name : "Anonymous";
+  let incomingName = req.body.name.length > 0 ? req.body.name : req.body.email;
   // User details for registration
   const details = {
     incomingName,
