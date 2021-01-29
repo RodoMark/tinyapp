@@ -230,7 +230,7 @@ app.get("/urls/:shortURL/", (req, res) => {
 });
 
 // DELETE existing URL
-app.delete("/u/:shortURL", (req, res) => {
+app.delete("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
 
   if (urlDatabase[shortURL]) {
